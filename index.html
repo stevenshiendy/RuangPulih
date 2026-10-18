@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Ruang Pulih — satu ruang, tempat kamu didengar dan dituntun untuk pulih. Komunitas anonim, Teman Pulih, dan psikolog berlisensi.">
+  <meta name="theme-color" content="#2F5A3C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Ruang Pulih</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,500&family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <link rel="stylesheet" href="styles.css?v=4.9">
+</head>
+<body>
+
+<div class="stage">
+  <!-- Desktop-only presenter panel -->
+  <aside class="stage-aside">
+    <span class="wordmark" role="img" aria-label="Ruang Pulih"></span>
+    <p>Karena kamu tidak berjuang sendirian. Prototype aplikasi mobile — komunitas anonim, Teman Pulih, dan psikolog berlisensi dalam satu ruang.</p>
+    <div class="stage-links">
+      <a class="stage-link" href="admin.html"><i class="ph ph-chart-bar"></i> Dashboard B2B</a>
+      <button class="stage-link" onclick="toggleTheme()"><i class="ph ph-moon"></i> Ganti tema</button>
+      <button class="stage-link" onclick="captureMockup()"><i class="ph ph-camera"></i> Simpan mockup</button>
+      <button class="stage-link" onclick="resetDemo()"><i class="ph ph-arrow-counter-clockwise"></i> Reset demo</button>
+    </div>
+  </aside>
+
+  <div class="phone" id="phone">
+    <div class="app" id="app">
+      <div class="statusbar"><span id="clock">09:41</span><span class="sb-icons"><i class="ph-fill ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></span></div>
+
+      <div class="scroll" id="scroll">
+        <header class="topbar">
+          <div id="topbarTitle"></div>
+          <div class="topbar-actions">
+            <button class="premium-pill" id="premiumPill" onclick="openPremium()"></button>
+            <button class="icon-btn" onclick="openNotifications()" aria-label="Notifikasi"><i class="ph ph-bell-simple"></i><span class="dot" id="notifDot"></span></button>
+            <button class="icon-btn" onclick="openSettings()" aria-label="Menu dan pengaturan"><i class="ph ph-list"></i></button>
+          </div>
+        </header>
+
+        <main class="screen" id="screen-home"></main>
+        <section class="screen" id="screen-community"></section>
+        <section class="screen" id="screen-support"></section>
+        <section class="screen" id="screen-learn"></section>
+        <section class="screen" id="screen-me"></section>
+      </div>
+
+      <nav class="nav" id="nav" aria-label="Navigasi utama"></nav>
+
+      <div class="sos-fab" id="sosFab" role="complementary" aria-label="Bantuan darurat"></div>
+
+      <div class="scrim" id="scrim" onclick="closeSheet()"></div>
+      <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+
+      <div class="toast" id="toast" role="status"></div>
+      <div class="welcome hide" id="welcome"></div>
+    </div>
+  </div>
+
+  <!-- Desktop-only right panel: settings table + feature backlog -->
+  <aside class="stage-panel" id="stagePanel" aria-label="Pengaturan dan usulan fitur"></aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="content.js?v=4.9"></script>
+<script src="illustrations.js?v=4.9"></script>
+<script src="app.js?v=4.9"></script>
+<script src="settings.js?v=4.9"></script>
+<script src="auth.js?v=4.9"></script>
+</body>
+</html>

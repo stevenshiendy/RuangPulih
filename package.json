@@ -1,0 +1,23 @@
+{
+  "name": "ruang-pulih",
+  "version": "1.0.0",
+  "description": "Ruang Pulih — Your digital sanctuary for mental health, emotional wellness, and personal growth.",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y serve -l 5173"
+  },
+  "keywords": [
+    "wellness",
+    "mental-health",
+    "meditation",
+    "mood-tracker"
+  ],
+  "author": "Antigravity & Sahabat",
+  "license": "MIT",
+  "dependencies": {
+    "@tabler/icons": "^3.44.0"
+  },
+  "devDependencies": {
+    "daisyui": "^5.5.19"
+  }
+}

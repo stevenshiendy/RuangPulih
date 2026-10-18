@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RuangPulih B2B Portal</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/RuangPulih.svg" alt="Ruang Pulih" class="sidebar-logo">
+        <span class="sidebar-badge">B2B Portal</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="switchAdminTab('dashboard')" data-tab="dashboard">
+          <i class="ti ti-dashboard"></i> Analytics
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('users')" data-tab="users">
+          <i class="ti ti-users"></i> User Roster
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('events')" data-tab="events">
+          <i class="ti ti-calendar-event"></i> Events
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('support')" data-tab="support">
+          <i class="ti ti-messages"></i> Priority Support
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('settings')" data-tab="settings">
+          <i class="ti ti-settings"></i> Settings
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-profile">
+          <div class="admin-avatar">A</div>
+          <div class="admin-info">
+            <span class="admin-name">Admin Binus</span>
+            <span class="admin-org">Bina Nusantara</span>
+          </div>
+        </div>
+        <button class="logout-btn"><i class="ti ti-logout"></i></button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <h1 id="pageTitle">Dashboard Analytics</h1>
+        <div class="header-actions">
+          <button class="action-icon"><i class="ti ti-bell"></i></button>
+          <div class="org-badge">
+            <i class="ti ti-building"></i> Bina Nusantara
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <!-- Dashboard Tab -->
+        <section class="tab-content active" id="tab-dashboard">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Active Affiliated Users</span>
+                <span class="kpi-trend positive"><i class="ti ti-trending-up"></i> 14%</span>
+              </div>
+              <div class="kpi-value">1,842</div>
+              <div class="kpi-subtitle">vs last month</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Consultations Booked</span>
+                <span class="kpi-trend positive"><i class="ti ti-trending-up"></i> 8%</span>
+              </div>
+              <div class="kpi-value">345</div>
+              <div class="kpi-subtitle">This month</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Thread Engagement</span>
+                <span class="kpi-trend positive"><i class="ti ti-trending-up"></i> 22%</span>
+              </div>
+              <div class="kpi-value">4.8K</div>
+              <div class="kpi-subtitle">Likes & Comments</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Overall CSAT</span>
+                <span class="kpi-trend neutral"><i class="ti ti-minus"></i> 0%</span>
+              </div>
+              <div class="kpi-value">4.8 <span style="font-size:1rem; color:#F1C40F"><i class="ti ti-star-filled"></i></span></div>
+              <div class="kpi-subtitle">From 210 ratings</div>
+            </div>
+          </div>
+          <div class="chart-section" style="margin-top: 24px;">
+            <div class="chart-card">
+              <h3>Engagement Trends</h3>
+              <div class="placeholder-chart">
+                <!-- CSS Animated Bars -->
+                <div class="bar-container"><div class="bar" style="height: 40%"></div></div>
+                <div class="bar-container"><div class="bar" style="height: 60%"></div></div>
+                <div class="bar-container"><div class="bar" style="height: 30%"></div></div>
+                <div class="bar-container"><div class="bar" style="height: 70%"></div></div>
+                <div class="bar-container"><div class="bar" style="height: 90%"></div></div>
+                <div class="bar-container"><div class="bar" style="height: 50%"></div></div>
+                <div class="bar-container"><div class="bar" style="height: 100%; background: var(--sage)"></div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Users Tab -->
+        <section class="tab-content" id="tab-users">
+          <div class="card">
+            <div class="card-header-flex">
+              <h2>User Roster Management</h2>
+              <div class="actions">
+                <button class="btn btn-secondary" onclick="generateInvite()"><i class="ti ti-key"></i> Generate Invite Code</button>
+                <button class="btn btn-primary"><i class="ti ti-upload"></i> Bulk Upload CSV</button>
+              </div>
+            </div>
+            <div class="settings-row" style="margin-top: 20px;">
+              <div class="setting-info">
+                <h4>Domain Whitelist</h4>
+                <p>Automatically approve anyone registering with these email domains.</p>
+              </div>
+              <div class="setting-action">
+                <input type="text" value="@binus.edu" class="input-text" style="width: 200px;">
+                <button class="btn btn-outline">Update</button>
+              </div>
+            </div>
+            <div style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
+              <i class="ti ti-search" style="color: var(--text-muted); font-size: 1.2rem;"></i>
+              <input type="text" id="rosterSearch" placeholder="Cari nama user..." class="input-text" style="width: 300px;" oninput="filterRoster()">
+            </div>
+            <table class="data-table" id="rosterTable" style="margin-top: 16px;">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Join Date</th>
+                  <th>Consultations</th>
+                  <th>Threads</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Budi Santoso</td>
+                  <td>12 Oct 2026</td>
+                  <td>4</td>
+                  <td>12</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td>
+                    <button class="btn-icon" title="View KPIs" onclick="openUserKpiModal('Budi Santoso', 12, '3.2', 4, '2m 14s', '85%', '4.9')"><i class="ti ti-chart-bar"></i></button>
+                    <button class="btn-icon"><i class="ti ti-unlink"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Siti Aminah</td>
+                  <td>14 Oct 2026</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td>
+                    <button class="btn-icon" title="View KPIs" onclick="openUserKpiModal('Siti Aminah', 3, '1.5', 1, '4m 05s', '40%', '4.5')"><i class="ti ti-chart-bar"></i></button>
+                    <button class="btn-icon"><i class="ti ti-unlink"></i></button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Rina Yuliana</td>
+                  <td>18 Oct 2026</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td><span class="badge badge-pending">Pending</span></td>
+                  <td>
+                    <button class="btn-icon" title="View KPIs" onclick="openUserKpiModal('Rina Yuliana', 0, '0', 0, '-', '0%', '-')"><i class="ti ti-chart-bar"></i></button>
+                    <button class="btn-icon"><i class="ti ti-check"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Events Tab -->
+        <section class="tab-content" id="tab-events">
+          <div class="card">
+            <div class="card-header-flex">
+              <h2>Upcoming Organization Events</h2>
+              <button class="btn btn-primary"><i class="ti ti-plus"></i> Request New Event</button>
+            </div>
+            <div class="event-list" style="margin-top: 24px;">
+              <div class="event-item">
+                <div class="event-date">
+                  <span class="month">NOV</span>
+                  <span class="day">12</span>
+                </div>
+                <div class="event-details">
+                  <h4>Webinar: Managing Stress During Midterms</h4>
+                  <p><i class="ti ti-clock"></i> 14:00 - 15:30 WIB | Online (Zoom)</p>
+                </div>
+                <div class="event-actions">
+                  <button class="btn btn-outline">Copy Access Link</button>
+                </div>
+              </div>
+              <div class="event-item">
+                <div class="event-date">
+                  <span class="month">DEC</span>
+                  <span class="day">05</span>
+                </div>
+                <div class="event-details">
+                  <h4>Mental Health Offline Roadshow</h4>
+                  <p><i class="ti ti-map-pin"></i> Binus Anggrek Campus Auditorium</p>
+                </div>
+                <div class="event-actions">
+                  <button class="btn btn-outline">View Registrants</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Support Chat Tab -->
+        <section class="tab-content" id="tab-support">
+          <div class="chat-container card">
+            <div class="chat-header">
+              <div class="chat-agent">
+                <img src="assets/RuangPulih.svg" style="height:32px; background:var(--bg); border-radius:50%; padding:4px;">
+                <div>
+                  <h4>RuangPulih B2B Support</h4>
+                  <span class="status online">Online</span>
+                </div>
+              </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="msg received">
+                <div class="msg-bubble">Halo! Ada yang bisa kami bantu terkait kontrak atau teknis hari ini?</div>
+              </div>
+              <div class="msg sent">
+                <div class="msg-bubble">Hi, saya ingin upgrade kuota konsultasi bulan ini menjadi 500 sesi.</div>
+              </div>
+              <div class="msg received">
+                <div class="msg-bubble">Baik, kami akan memproses upgrade tersebut. Tagihan prorata akan dikirimkan ke email finance.</div>
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <input type="text" placeholder="Type your message..." id="chatInput" class="input-text">
+              <button class="btn btn-primary" onclick="sendSupportMessage()"><i class="ti ti-send"></i></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings Tab -->
+        <section class="tab-content" id="tab-settings">
+          <div class="card">
+            <h2>Organization Settings</h2>
+            
+            <div class="settings-section">
+              <h3>Institution Profile</h3>
+              <div class="settings-row">
+                <div class="setting-info">
+                  <h4>Organization Logo</h4>
+                  <p>Appears in the Affiliation Hub for your users.</p>
+                </div>
+                <div class="setting-action">
+                  <div class="logo-preview" style="width:60px; height:60px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px dashed #ccc;">
+                    <i class="ti ti-upload"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3>Pinned Resources</h3>
+              <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">These links will appear at the top of your users' affiliation hub.</p>
+              <div class="resource-item">
+                <input type="text" class="input-text" value="HR Leave Policy" style="flex:1;">
+                <input type="text" class="input-text" value="https://hr.binus.edu/leave" style="flex:2;">
+                <button class="btn-icon" style="color:var(--coral);"><i class="ti ti-trash"></i></button>
+              </div>
+              <button class="btn btn-outline" style="margin-top:12px;"><i class="ti ti-plus"></i> Add Resource</button>
+            </div>
+
+            <div class="settings-section">
+              <h3>Contract & Billing</h3>
+              <div class="settings-row">
+                <div class="setting-info">
+                  <h4>Current Plan</h4>
+                  <p>Enterprise Tier 2 (Up to 5,000 users)</p>
+                </div>
+                <div class="setting-action">
+                  <span class="badge badge-active">Active until Dec 2027</span>
+                </div>
+              </div>
+              <button class="btn btn-outline" style="margin-top:12px;"><i class="ti ti-download"></i> Download Latest Invoice</button>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" onclick="alert('Settings saved!')">Save Changes</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- User KPI Modal -->
+  <div id="userKpiModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h2 id="kpiModalName">User - KPIs</h2>
+      <div class="modal-kpi-grid">
+        <div class="kpi-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="kpi-header"><span class="kpi-title">Threads Posted</span></div>
+          <div class="kpi-value" id="kpiThreads">0</div>
+          <div class="kpi-chart-mini sparkline-1"></div>
+        </div>
+        <div class="kpi-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="kpi-header"><span class="kpi-title">Avg Replies</span></div>
+          <div class="kpi-value" id="kpiReplies">0</div>
+          <div class="kpi-chart-mini sparkline-2"></div>
+        </div>
+        <div class="kpi-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="kpi-header"><span class="kpi-title">Consultations</span></div>
+          <div class="kpi-value" id="kpiConsults">0</div>
+          <div class="kpi-bar-chart">
+            <div class="kpi-bar" style="height: 40%;"></div>
+            <div class="kpi-bar" style="height: 60%;"></div>
+            <div class="kpi-bar" style="height: 80%;"></div>
+            <div class="kpi-bar active" style="height: 100%;"></div>
+          </div>
+        </div>
+        <div class="kpi-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="kpi-header"><span class="kpi-title">Avg Wait Time</span></div>
+          <div class="kpi-value" id="kpiWait">0</div>
+          <div class="kpi-progress-bg">
+            <div class="kpi-progress-fill" style="width: 30%; background: var(--coral);"></div>
+          </div>
+        </div>
+        <div class="kpi-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="kpi-header"><span class="kpi-title">Returning User</span></div>
+          <div class="kpi-value" id="kpiReturn">No</div>
+          <div class="kpi-donut-container">
+            <div class="kpi-donut" style="--percent: 75;" id="kpiReturnDonut">
+              <div class="kpi-donut-inner">Yes</div>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="kpi-header"><span class="kpi-title">CSAT Score</span></div>
+          <div class="kpi-value" id="kpiCsat">0 <span style="font-size:1rem; color:#F1C40F"><i class="ti ti-star-filled"></i></span></div>
+          <div class="kpi-stars">
+            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 24px; text-align: right;">
+        <button class="btn btn-outline" onclick="closeUserKpiModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="admin.js"></script>
+</body>
+</html>

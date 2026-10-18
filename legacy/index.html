@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="description" content="Ruang Pulih — Your digital sanctuary for mental health, emotional wellness, and personal growth. Evidence-based tools, guided meditations, and community support.">
+  <meta name="theme-color" content="#5F7A61">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Ruang Pulih — Healing Space</title>
+  <link rel="icon" href="../assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-PLACEHOLDER"></script>
+</head>
+<body>
+
+<!-- ===== SIMULATOR CONTAINER ===== -->
+<div id="simulator-container">
+  
+  <!-- Device Selector Toolbar -->
+  <div class="simulator-toolbar">
+    <span class="sim-toolbar-title"><i class="ti ti-device-mobile"></i> Preview:</span>
+    <select class="simulator-select" id="deviceSelect" onchange="changeSimulatedDevice()">
+      <option value="iphone17">iPhone 17 / 17 Pro (402 × 874)</option>
+      <option value="iphone17air">iPhone 17 Air (420 × 912)</option>
+      <option value="iphone17promax">iPhone 17 Pro Max (440 × 956)</option>
+      <option value="responsive">Responsive Mobile (480px Max)</option>
+      <option value="fullscreen">Desktop Fullscreen</option>
+      <option value="b2bAdmin">B2B Admin Dashboard (Desktop)</option>
+    </select>
+    <span class="sim-indicator" id="simIndicator"></span>
+  </div>
+
+  <!-- Device Frame -->
+  <div class="device-frame simulated" id="deviceFrame">
+    
+    <!-- Simulated Status Bar -->
+    <div class="simulated-status-bar">
+      <span class="sim-time" id="simTime">15:08</span>
+      <div class="sim-icons">
+        <i class="ti ti-network"></i>
+        <i class="ti ti-wifi"></i>
+        <i class="ti ti-battery-4"></i>
+      </div>
+    </div>
+    
+    <!-- Simulated Dynamic Island -->
+    <div class="simulated-dynamic-island" id="simDynamicIsland">
+      <!-- Content injected by JS -->
+    </div>
+
+    <div id="app">
+
+  <!-- ===== AMBIENT PARTICLES ===== -->
+  <div class="ambient-particles" id="ambientParticles"></div>
+
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div class="splash-screen" id="splashScreen">
+    <img src="../assets/RuangPulih.svg" alt="Ruang Pulih Logo" class="splash-logo">
+    <p class="splash-subtitle">Your Healing Space</p>
+    <button class="splash-cta" id="splashCta" onclick="dismissSplash()">Mulai Perjalananmu</button>
+  </div>
+
+  <!-- ===== SCROLLABLE CONTENT ===== -->
+  <div class="app-scroll" id="appScroll">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="top-bar" id="topBar">
+    <div class="top-bar-logo">
+      <img src="../assets/RuangPulih.svg" alt="Ruang Pulih Logo" id="topBarLogo">
+    </div>
+    <div class="top-bar-actions">
+      <button class="top-bar-btn" id="notifBtn" aria-label="Notifications" onclick="toggleNotif()"><i class="ti ti-bell"></i></button>
+      <button class="top-bar-btn" id="profileBtn" aria-label="Menu" onclick="toggleProfile()"><i class="ti ti-menu-2"></i></button>
+    </div>
+  </header>
+
+  <!-- ===== SCREEN 1: HOME / RUANGKU ===== -->
+  <main class="screen active" id="screenHome">
+    <section class="greeting-section">
+      <p class="greeting-hello">Selamat sore 🌅</p>
+      <h2 class="greeting-name">Hai, <span id="userName">Sahabat</span></h2>
+      <div class="streak-badge" id="streakBadge">
+        <span class="streak-fire">🔥</span>
+        <span id="streakCount">0</span> hari berturut-turut
+      </div>
+    </section>
+
+    <!-- Mood Check -->
+    <div class="mood-card" id="moodCard">
+      <p class="mood-question">Bagaimana perasaanmu hari ini?</p>
+      <div class="mood-slider-display">
+        <span class="mood-dynamic-emoji" id="moodDynamicEmoji">😐</span>
+        <span class="mood-dynamic-value" id="moodDynamicValue">5/10</span>
+      </div>
+
+      <div class="mood-slider-container">
+        <input type="range" min="0" max="10" value="5" class="mood-slider-input" id="moodSliderInput">
+      </div>
+      
+      <div class="mood-labels">
+        <span>0 - Sangat Buruk</span>
+        <span>10 - Sangat Baik</span>
+      </div>
+      
+      <button class="journal-save" style="margin-top: 16px;" id="moodSaveBtn" onclick="saveMood()">Simpan Mood</button>
+    </div>
+
+    <!-- Quick Journal -->
+    <div class="journal-card" id="journalCard">
+      <h3><i class="ti ti-pencil" style="color:var(--sage-dark); margin-right:4px;"></i> Jurnal Cepat</h3>
+      <textarea class="journal-input" id="journalInput" placeholder="Ceritakan apa yang ada di pikiranmu hari ini..." rows="3"></textarea>
+      <button class="journal-save" id="journalSave" onclick="saveJournal()">Simpan</button>
+    </div>
+
+    <!-- Exclusive Events Feed (Hidden by Default) -->
+    <div id="affiliatedEvents" style="display: none; padding: 10px 20px;">
+      <div style="background: linear-gradient(135deg, var(--sage-dark), #0A2417); border-radius: var(--radius-lg); padding: 20px; color: white;">
+        <h3 style="font-size: 1.05rem; display: flex; align-items: center; gap: 8px;"><i class="ti ti-building"></i> Event <span id="affOrgName">Institusi</span></h3>
+        <p style="font-size: 0.8rem; margin-top: 4px; opacity: 0.9;">Akses eksklusif untuk afiliasi.</p>
+        <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; margin-top: 12px; display: flex; gap: 12px; align-items: center;">
+          <div style="background: var(--coral); color: white; border-radius: 6px; padding: 6px 10px; text-align: center; font-weight: 700; font-size: 1.1rem; line-height: 1.1;">
+            12<br><span style="font-size: 0.65rem; font-weight: 500;">NOV</span>
+          </div>
+          <div>
+            <h4 style="font-size: 0.9rem;">Webinar: Managing Stress</h4>
+            <span style="font-size: 0.75rem; opacity: 0.8;"><i class="ti ti-clock"></i> 14:00 WIB • Online</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Feed -->
+    <div class="content-section">
+      <div class="section-header">
+        <h3><i class="ti ti-leaf" style="color:var(--sage); margin-right:4px;"></i> Untukmu Hari Ini</h3>
+        <a href="#" onclick="switchTab('learn'); return false;">Lihat Semua</a>
+      </div>
+    </div>
+    <div class="carousel" id="contentCarousel">
+      <div class="content-card" onclick="openBreathing()">
+        <div class="content-card-img" style="background: url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80') center/cover no-repeat;"></div>
+        <div class="content-card-body">
+          <span class="content-card-tag">Pernapasan</span>
+          <h4 class="content-card-title">3-Menit Grounding</h4>
+          <p class="content-card-meta"><i class="ti ti-clock"></i> 3 menit · Pemula</p>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-img" style="background: url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=80') center/cover no-repeat;"></div>
+        <div class="content-card-body">
+          <span class="content-card-tag">Meditasi</span>
+          <h4 class="content-card-title">Body Scan Rileksasi</h4>
+          <p class="content-card-meta"><i class="ti ti-clock"></i> 10 menit · Menengah</p>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-img" style="background: url('https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=600&q=80') center/cover no-repeat;"></div>
+        <div class="content-card-body">
+          <span class="content-card-tag">Artikel</span>
+          <h4 class="content-card-title">Mengenal Emotional Regulation</h4>
+          <p class="content-card-meta"><i class="ti ti-book"></i> 5 menit baca</p>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-img" style="background: url('https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80') center/cover no-repeat;"></div>
+        <div class="content-card-body">
+          <span class="content-card-tag">Audio</span>
+          <h4 class="content-card-title">Sleep Story: Hutan Pinus</h4>
+          <p class="content-card-meta"><i class="ti ti-clock"></i> 15 menit · Tidur</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===== SCREEN 2: MOOD TRACKER ===== -->
+  <section class="screen mood-tracker-screen" id="screenMood">
+    <div class="greeting-section"><h2><i class="ti ti-chart-bar" style="color:var(--sage);"></i> Mood Tracker</h2></div>
+
+    <div class="mood-week-chart">
+      <h3>Minggu Ini</h3>
+      <div class="mood-bars" id="moodBars"></div>
+    </div>
+
+    <div class="mood-insights">
+      <h3><i class="ti ti-bulb" style="color:var(--coral);"></i> Insight Mingguan</h3>
+      <div class="insight-item">
+        <div class="insight-icon" style="background: rgba(95,122,97,0.15); color:var(--sage);"><i class="ti ti-trending-up"></i></div>
+        <div class="insight-text">
+          <h4>Tren Positif</h4>
+          <p>Moodmu 15% lebih baik dibanding minggu lalu. Terus pertahankan!</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon" style="background: rgba(217,217,217,0.3); color:var(--sky-dark);"><i class="ti ti-moon"></i></div>
+        <div class="insight-text">
+          <h4>Pola Tidur</h4>
+          <p>Kamu cenderung merasa lebih baik saat tidur sebelum jam 11 malam.</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon" style="background: rgba(166,123,91,0.15); color:var(--coral);"><i class="ti ti-bolt"></i></div>
+        <div class="insight-text">
+          <h4>Trigger Teridentifikasi</h4>
+          <p>Hari kerja (Senin–Rabu) menunjukkan mood yang lebih rendah.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mood History -->
+    <div class="mood-insights">
+      <h3><i class="ti ti-calendar" style="color:var(--sage-dark);"></i> Riwayat Mood</h3>
+      <div id="moodHistory"></div>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN 3: BELAJAR (LEARNING) ===== -->
+  <section class="screen" id="screenLearn" style="padding-bottom: 100px;">
+    
+    <!-- Hero Section -->
+    <div class="course-hero">
+      <div class="course-hero-bg">
+        <img src="https://images.unsplash.com/photo-1499810631641-541e76d678a2?auto=format&fit=crop&q=80&w=800" alt="Belajar Background">
+        <div class="course-hero-overlay"></div>
+      </div>
+      <div class="course-hero-content">
+        <div class="course-hero-badge">Topik Pilihan</div>
+        <h2 class="course-hero-title">HOLISTIC<br>WELL-BEING</h2>
+        <p class="course-hero-subtitle">Mulai perjalananmu menuju keseimbangan hidup. Pelajari dasar-dasar kesehatan mental dan perencanaan karir yang sehat.</p>
+        <button class="course-hero-btn" onclick="openMeditation('body-scan')">Mulai Belajar</button>
+      </div>
+    </div>
+
+    <div style="padding: 20px 20px 0 20px;">
+      <!-- Teman Pulih Banner -->
+      <div style="background: linear-gradient(135deg, var(--sage), var(--sage-dark)); border-radius: var(--radius-lg); padding: 24px; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.15;"><i class="ti ti-school"></i></div>
+        <h3 style="font-size: 1.1rem; color: white;">Menjadi Teman Pulih</h3>
+        <p style="font-size: 0.8rem; margin-top: 6px; opacity: 0.9;">Raih sertifikasi HIMPSI & bantu orang lain dalam perjalanan pemulihannya.</p>
+        <button style="margin-top: 16px; padding: 10px 24px; background: #ffffff; color: #000000; border: none; border-radius: 50px; font-weight: 600; font-size: 0.85rem; cursor: pointer;" onclick="handleTemanPulih()">Pelajari Selengkapnya →</button>
+      </div>
+    </div>
+
+    <!-- Section 1: Mental Health -->
+    <div class="course-section">
+      <div class="course-section-header">
+        <h3 class="course-section-title"><i class="ti ti-brain" style="color:var(--sage)"></i> Mental Health</h3>
+      </div>
+      <div class="course-carousel">
+        <div class="course-card" onclick="openArticle('thought-record')">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&q=80&w=400" alt="Thought Record">
+            <div class="course-card-pill"><i class="ti ti-book"></i> 15 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Thought Record</h4>
+              <p>Identifikasi pikiran otomatis negatif</p>
+            </div>
+          </div>
+        </div>
+        <div class="course-card" onclick="openArticle('therapy-myths')">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&q=80&w=400" alt="Therapy Myths">
+            <div class="course-card-pill"><i class="ti ti-book"></i> 7 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Mitos Terapi</h4>
+              <p>Fakta di balik terapi psikologis</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Well-being -->
+    <div class="course-section">
+      <div class="course-section-header">
+        <h3 class="course-section-title"><i class="ti ti-leaf" style="color:var(--coral)"></i> Well-being Practices</h3>
+      </div>
+      <div class="course-carousel">
+        <div class="course-card" onclick="openMeditation('body-scan')">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1528319725582-ddc096101511?auto=format&fit=crop&q=80&w=400" alt="Body Scan">
+            <div class="course-card-pill"><i class="ti ti-headphones"></i> 10 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Body Scan Meditation</h4>
+              <p>Rileksasi mendalam & mindfulness</p>
+            </div>
+          </div>
+        </div>
+        <div class="course-card" onclick="openBreathing()">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1508615039623-a25605d2b022?auto=format&fit=crop&q=80&w=400" alt="Box Breathing">
+            <div class="course-card-pill"><i class="ti ti-wind"></i> 4 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Box Breathing</h4>
+              <p>Menenangkan sistem saraf (4-4-4-4)</p>
+            </div>
+          </div>
+        </div>
+        <div class="course-card" onclick="openGratitude()">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=400" alt="Gratitude">
+            <div class="course-card-pill"><i class="ti ti-pencil"></i> 5 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Gratitude Journaling</h4>
+              <p>Mencatat hal yang disyukuri</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Career Planning -->
+    <div class="course-section">
+      <div class="course-section-header">
+        <h3 class="course-section-title"><i class="ti ti-briefcase" style="color:var(--sky-dark)"></i> Career Planning</h3>
+      </div>
+      <div class="course-carousel">
+        <div class="course-card" onclick="openArticle('boundary')">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=400" alt="Boundary Setting">
+            <div class="course-card-pill"><i class="ti ti-book"></i> 5 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Work-Life Boundaries</h4>
+              <p>Menetapkan batasan profesional yang sehat</p>
+            </div>
+          </div>
+        </div>
+        <div class="course-card" onclick="openArticle('career-burnout')">
+          <div class="course-card-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&q=80&w=400" alt="Burnout">
+            <div class="course-card-pill"><i class="ti ti-book"></i> 8 min</div>
+          </div>
+          <div class="course-card-info">
+            <div class="course-card-text">
+              <h4>Mencegah Burnout</h4>
+              <p>Mengenali tanda dan cara mengatasinya</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN 4: KONSULTASI (CONSULTING) ===== -->
+  <section class="screen" id="screenConsult" style="padding-bottom: 100px;">
+    <div class="consult-header">
+      <h2><i class="ti ti-heart-handshake" style="color:var(--sage);"></i> Teman Pulih</h2>
+      <p>Konsultasi privat & aman dengan psikolog profesional berlisensi</p>
+    </div>
+
+    <!-- Marketing Banner -->
+    <div class="marketing-banner" id="consultMarketingBanner" onclick="openAffiliationModal()" style="margin: 0 20px 16px; background: linear-gradient(135deg, var(--sky-light), var(--bg)); padding: 12px 16px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border);">
+      <div style="background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--sage); flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><i class="ti ti-building-skyscraper"></i></div>
+      <div>
+        <h4 style="font-size: 0.9rem; margin-bottom: 2px;">Gratis dengan Afiliasi</h4>
+        <p style="font-size: 0.75rem; color: var(--text-secondary);">Tautkan akun dengan kampus/perusahaanmu untuk akses gratis. <strong>Coba sekarang!</strong></p>
+      </div>
+    </div>
+
+    <!-- Search and Specialities -->
+    <div class="consult-search-container">
+      <div class="consult-search-box">
+        <i class="ti ti-search search-icon"></i>
+        <input type="text" id="consultSearch" placeholder="Cari nama psikolog atau keahlian..." oninput="filterPsychologists()">
+      </div>
+    </div>
+
+    <div class="consult-categories" id="consultCats">
+      <button class="consult-cat active" data-cat="all" onclick="filterConsultCat('all')">Semua</button>
+      <button class="consult-cat" data-cat="anxiety" onclick="filterConsultCat('anxiety')">Kecemasan</button>
+      <button class="consult-cat" data-cat="depression" onclick="filterConsultCat('depression')">Depresi</button>
+      <button class="consult-cat" data-cat="relationship" onclick="filterConsultCat('relationship')">Hubungan</button>
+      <button class="consult-cat" data-cat="self" onclick="filterConsultCat('self')">Pengembangan</button>
+    </div>
+
+    <div class="psychologists-list" id="psychologistsList">
+      <!-- Psychologists will be rendered dynamically from app.js -->
+    </div>
+  </section>
+
+  <!-- ===== SCREEN 5: THREADS / COMMUNITY ===== -->
+  <section class="screen" id="screenThreads">
+    <div class="threads-header">
+      <h2><i class="ti ti-message-circle-2" style="color:var(--sage);"></i> Lingkar Pulih</h2>
+      <p>Ruang aman untuk saling berbagi dan mendukung</p>
+    </div>
+
+    <!-- Marketing Banner -->
+    <div class="marketing-banner" id="threadsMarketingBanner" onclick="openAffiliationModal()" style="margin: 0 20px 16px; background: linear-gradient(135deg, var(--sky-light), var(--bg)); padding: 12px 16px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border);">
+      <div style="background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--sage); flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"><i class="ti ti-building-skyscraper"></i></div>
+      <div>
+        <h4 style="font-size: 0.9rem; margin-bottom: 2px;">Private Hub Institusi</h4>
+        <p style="font-size: 0.75rem; color: var(--text-secondary);">Tautkan akunmu untuk bergabung ke komunitas eksklusif kantormu.</p>
+      </div>
+    </div>
+
+    <div class="thread-categories">
+      <button class="thread-cat active" onclick="switchThreadCat(this)">Semua</button>
+      <button class="thread-cat" id="hubCatBtn" style="display:none; border: 1px solid var(--sage); color: var(--sage);" onclick="switchThreadCat(this)"><i class="ti ti-building"></i> <span id="hubCatName">Hub Institusi</span></button>
+      <button class="thread-cat" onclick="switchThreadCat(this)">Kecemasan</button>
+      <button class="thread-cat">Burnout</button>
+      <button class="thread-cat">Hubungan</button>
+      <button class="thread-cat">Duka</button>
+      <button class="thread-cat">Self-Love</button>
+    </div>
+
+    <div class="threads-list" id="threadsList">
+      <!-- What's New Input -->
+      <article class="thread-post" style="border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer;" onclick="handleThreadCreate()">
+        <div class="thread-left">
+          <div class="thread-avatar" style="background: var(--text-primary); color:var(--bg);"><i class="ti ti-user"></i></div>
+        </div>
+        <div class="thread-right" style="justify-content: center;">
+          <span style="color: var(--text-muted); font-size: 0.95rem;">Apa yang ingin kamu bagikan hari ini?</span>
+        </div>
+      </article>
+
+      <article class="thread-post">
+        <div class="thread-left">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, var(--sage-light), var(--sage)); color:white;"><i class="ti ti-leaf"></i></div>
+        </div>
+        <div class="thread-right">
+          <div class="thread-post-header">
+            <h4>Anonim · Teman Pulih <i class="ti ti-check" style="color:var(--sage);"></i> <span class="supporter-badge" data-supporter-badge style="display:none;"><i class="ti ti-heart-filled"></i> Supporter</span></h4>
+            <div class="thread-meta">
+              <span>2j</span>
+              <button class="thread-more"><i class="ti ti-dots"></i></button>
+            </div>
+          </div>
+          <p class="thread-body" style="cursor:pointer;" onclick="handleThreadComment(this)">Hari ini aku mencoba untuk tidak terlalu keras pada diriku sendiri. Kalau kamu juga sedang berjuang, ingat: setiap langkah kecil tetap berarti. 🤍</p>
+          <div class="thread-actions">
+            <button class="thread-action-icon" onclick="handleThreadLike(this)"><i class="ti ti-heart"></i></button>
+            <button class="thread-action-icon" onclick="handleThreadComment(this)"><i class="ti ti-message-circle"></i></button>
+            <button class="thread-action-icon"><i class="ti ti-repeat"></i></button>
+            <button class="thread-action-icon" onclick="openShareSheet()"><i class="ti ti-send"></i></button>
+          </div>
+          <div class="thread-footer">
+            <span>12 balasan</span> · <span>48 suka</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="thread-post">
+        <div class="thread-left">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, var(--sky-light), var(--sky)); color:var(--sky-dark);"><i class="ti ti-cloud"></i></div>
+        </div>
+        <div class="thread-right">
+          <div class="thread-post-header">
+            <h4>Anonim <span class="supporter-badge" data-supporter-badge style="display:none;"><i class="ti ti-heart-filled"></i> Supporter</span></h4>
+            <div class="thread-meta">
+              <span>5j</span>
+              <button class="thread-more"><i class="ti ti-dots"></i></button>
+            </div>
+          </div>
+          <p class="thread-body" style="cursor:pointer;" onclick="handleThreadComment(this)">Apakah ada yang pernah merasa overwhelmed dengan ekspektasi keluarga? Aku butuh perspektif baru tentang cara menetapkan batasan tanpa merasa bersalah. 😥</p>
+          <div class="thread-actions">
+            <button class="thread-action-icon" onclick="handleThreadLike(this)"><i class="ti ti-heart"></i></button>
+            <button class="thread-action-icon" onclick="handleThreadComment(this)"><i class="ti ti-message-circle"></i></button>
+            <button class="thread-action-icon"><i class="ti ti-repeat"></i></button>
+            <button class="thread-action-icon" onclick="openShareSheet()"><i class="ti ti-send"></i></button>
+          </div>
+          <div class="thread-footer">
+            <span>8 balasan</span> · <span>24 suka</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="thread-post">
+        <div class="thread-left">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, var(--sand-light), var(--sand)); color:var(--coral);"><i class="ti ti-flower"></i></div>
+        </div>
+        <div class="thread-right">
+          <div class="thread-post-header">
+            <h4>Anonim · Teman Pulih <i class="ti ti-check" style="color:var(--sage);"></i> <span class="supporter-badge" data-supporter-badge style="display:none;"><i class="ti ti-heart-filled"></i> Supporter</span></h4>
+            <div class="thread-meta">
+              <span>18j</span>
+              <button class="thread-more"><i class="ti ti-dots"></i></button>
+            </div>
+          </div>
+          <p class="thread-body" style="cursor:pointer;" onclick="handleThreadComment(this)">Prompt hari ini: Tuliskan satu hal yang sudah kamu lakukan dengan baik minggu ini, sekecil apapun itu. Kamu layak untuk mengapresiasi dirimu sendiri. ✨</p>
+          <div class="thread-actions">
+            <button class="thread-action-icon" onclick="handleThreadLike(this)"><i class="ti ti-heart"></i></button>
+            <button class="thread-action-icon" onclick="handleThreadComment(this)"><i class="ti ti-message-circle"></i></button>
+            <button class="thread-action-icon"><i class="ti ti-repeat"></i></button>
+            <button class="thread-action-icon" onclick="openShareSheet()"><i class="ti ti-send"></i></button>
+          </div>
+          <div class="thread-footer">
+            <span>24 balasan</span> · <span>156 suka</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="thread-post">
+        <div class="thread-left">
+          <div class="thread-avatar" style="background: linear-gradient(135deg, var(--coral-light), var(--coral)); color:white;"><i class="ti ti-flower"></i></div>
+        </div>
+        <div class="thread-right">
+          <div class="thread-post-header">
+            <h4>Anonim <span class="supporter-badge" data-supporter-badge style="display:none;"><i class="ti ti-heart-filled"></i> Supporter</span></h4>
+            <div class="thread-meta">
+              <span>1h</span>
+              <button class="thread-more"><i class="ti ti-dots"></i></button>
+            </div>
+          </div>
+          <p class="thread-body" style="cursor:pointer;" onclick="handleThreadComment(this)">Baru pertama kali coba terapi dan ternyata tidak se-menakutkan yang aku bayangkan. Kalau kamu masih ragu, ini tanda untuk mencoba. ❤️‍🩹</p>
+          <div class="thread-actions">
+            <button class="thread-action-icon" onclick="handleThreadLike(this)"><i class="ti ti-heart"></i></button>
+            <button class="thread-action-icon" onclick="handleThreadComment(this)"><i class="ti ti-message-circle"></i></button>
+            <button class="thread-action-icon"><i class="ti ti-repeat"></i></button>
+            <button class="thread-action-icon" onclick="openShareSheet()"><i class="ti ti-send"></i></button>
+          </div>
+          <div class="thread-footer">
+            <span>41 balasan</span> · <span>89 suka</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN 6: INBOX ===== -->
+  <section class="screen" id="screenInbox" style="padding-bottom: 100px;">
+    <div class="inbox-screen-header">
+      <h2><i class="ti ti-inbox" style="color:var(--sage);"></i> Inbox</h2>
+      <p>Pesan & status terbaru</p>
+    </div>
+
+    <!-- Stories / Status -->
+    <div class="inbox-stories-section">
+      <div class="inbox-stories-label">Status</div>
+      <div class="stories-scroll" id="storiesScroll">
+        <div class="story-item story-add" onclick="handleStoryPost()">
+          <div class="story-avatar-ring add">
+            <div class="story-avatar"><i class="ti ti-plus" style="font-size:1.2rem; color:var(--sage);"></i></div>
+          </div>
+          <span class="story-name">Ceritamu</span>
+        </div>
+        <div class="story-item" onclick="viewStory('healing')">
+          <div class="story-avatar-ring unseen">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);">🌱</div>
+          </div>
+          <span class="story-name">Anonim</span>
+        </div>
+        <div class="story-item" onclick="viewStory('gratitude')">
+          <div class="story-avatar-ring unseen">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);">🙏</div>
+          </div>
+          <span class="story-name">Anonim</span>
+        </div>
+        <div class="story-item" onclick="viewStory('tips')">
+          <div class="story-avatar-ring unseen">
+            <div class="story-avatar" style="background:linear-gradient(135deg,var(--sage-light),var(--sage));color:white;"><i class="ti ti-leaf"></i></div>
+          </div>
+          <span class="story-name">Teman Pulih</span>
+        </div>
+        <div class="story-item" onclick="viewStory('milestone')">
+          <div class="story-avatar-ring seen">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);">💪</div>
+          </div>
+          <span class="story-name">Anonim</span>
+        </div>
+        <div class="story-item" onclick="viewStory('quote')">
+          <div class="story-avatar-ring seen">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#FCE4EC,#F8BBD0);">✨</div>
+          </div>
+          <span class="story-name">Anonim</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DM List -->
+    <div class="inbox-dm-section">
+      <div class="inbox-dm-label">Pesan</div>
+      <div class="inbox-dm-list" id="inboxDmList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- End of Screens -->
+  <!-- ===== SOS BUTTON ===== -->
+  <button class="sos-float" id="sosBtn" onclick="openSOS()" aria-label="Emergency SOS">SOS</button>
+
+  <!-- ===== SOS MODAL ===== -->
+  <div class="sos-modal" id="sosModal">
+    <div class="sos-modal-content">
+      <h2><i class="ti ti-alert-triangle" style="color:var(--coral);"></i> Butuh Bantuan Segera?</h2>
+      <p>Kamu tidak sendirian. Hubungi layanan krisis sekarang.</p>
+
+      <a href="tel:119" class="sos-hotline">
+        <div class="sos-hotline-icon"><i class="ti ti-phone"></i></div>
+        <div class="sos-hotline-info">
+          <h4>Hotline 119 ext 8</h4>
+          <span>Kemenkes RI — Konseling Krisis 24/7</span>
+        </div>
+      </a>
+      <a href="tel:021-7884-5555" class="sos-hotline">
+        <div class="sos-hotline-icon"><i class="ti ti-device-mobile"></i></div>
+        <div class="sos-hotline-info">
+          <h4>Into The Light</h4>
+          <span>021-7884-5555 — Pencegahan Bunuh Diri</span>
+        </div>
+      </a>
+      <a href="tel:021-500-454" class="sos-hotline">
+        <div class="sos-hotline-icon"><i class="ti ti-heart"></i></div>
+        <div class="sos-hotline-info">
+          <h4>LSM Jangan Bunuh Diri</h4>
+          <span>021-9696-9293 — Senin–Jumat</span>
+        </div>
+      </a>
+
+      <button class="sos-close" onclick="closeSOS()">Tutup</button>
+    </div>
+  </div>
+
+  <!-- ===== BREATHING EXERCISE MODAL ===== -->
+  <div class="breathing-modal" id="breathingModal">
+    <div class="breathing-content">
+      <h3 style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: var(--sage-dark);">Latihan Napas <i class="ti ti-wind"></i></h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Box Breathing (4-4-4-4)</p>
+      <div class="breathing-circle" id="breathCircle">Mulai</div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;" id="breathInstruction">Ketuk lingkaran untuk memulai</p>
+      <button class="breathing-close" onclick="closeBreathing()">Selesai</button>
+    </div>
+  </div>
+
+  <!-- ===== GRATITUDE JOURNAL MODAL ===== -->
+  <div class="modal-overlay" id="gratitudeModal">
+    <div class="modal-sheet">
+      <div class="modal-sheet-handle"></div>
+      <div class="gratitude-header">
+        <span class="gratitude-icon"><i class="ti ti-hands-praying" style="color:var(--coral);"></i></span>
+        <h3>Gratitude Journal</h3>
+        <p>Tuliskan 3 hal yang kamu syukuri hari ini</p>
+      </div>
+      <div class="gratitude-entries">
+        <div class="gratitude-entry">
+          <span class="gratitude-num">1</span>
+          <input type="text" class="gratitude-input" id="gratitude1" placeholder="Aku bersyukur untuk...">
+        </div>
+        <div class="gratitude-entry">
+          <span class="gratitude-num">2</span>
+          <input type="text" class="gratitude-input" id="gratitude2" placeholder="Aku bersyukur untuk...">
+        </div>
+        <div class="gratitude-entry">
+          <span class="gratitude-num">3</span>
+          <input type="text" class="gratitude-input" id="gratitude3" placeholder="Aku bersyukur untuk...">
+        </div>
+      </div>
+      <div class="gratitude-prompt" id="gratitudePrompt">
+        <p><i class="ti ti-bulb"></i> <em>Bisa hal kecil: kopi pagi, senyum teman, cuaca cerah...</em></p>
+      </div>
+      <button class="modal-primary-btn" onclick="saveGratitude()">Simpan Rasa Syukur <i class="ti ti-sparkles"></i></button>
+      <button class="modal-secondary-btn" onclick="closeGratitude()">Tutup</button>
+    </div>
+  </div>
+
+  <!-- ===== ARTICLE READER MODAL ===== -->
+  <div class="modal-overlay" id="articleModal">
+    <div class="article-reader">
+      <div class="article-reader-header">
+        <button class="article-back-btn" onclick="closeArticle()"><i class="ti ti-arrow-left"></i> Kembali</button>
+        <button class="article-bookmark-btn" onclick="showToast('🔖 Artikel disimpan!')"><i class="ti ti-bookmark"></i></button>
+      </div>
+      <div class="article-reader-body" id="articleBody">
+        <!-- Dynamic article content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MEDITATION TIMER MODAL ===== -->
+  <div class="modal-overlay" id="meditationModal">
+    <div class="meditation-screen">
+      <button class="meditation-close-btn" onclick="closeMeditation()"><i class="ti ti-x"></i></button>
+      <div class="meditation-visual">
+        <div class="meditation-rings">
+          <div class="med-ring ring-1"></div>
+          <div class="med-ring ring-2"></div>
+          <div class="med-ring ring-3"></div>
+        </div>
+        <div class="meditation-timer" id="medTimer">10:00</div>
+      </div>
+      <h3 class="meditation-title" id="medTitle">Body Scan</h3>
+      <p class="meditation-guide" id="medGuide">Pejamkan mata dan fokus pada napasmu...</p>
+      <div class="meditation-controls">
+        <button class="med-control-btn" id="medPlayBtn" onclick="toggleMeditation()"><i class="ti ti-player-play"></i> Mulai</button>
+      </div>
+      <div class="meditation-progress">
+        <div class="meditation-progress-bar" id="medProgressBar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== THREAD DETAIL OVERLAY ===== -->
+  <div class="thread-detail-overlay" id="threadDetailOverlay">
+    <!-- Header -->
+    <div class="td-header">
+      <div class="td-header-left">
+        <button class="td-back-btn" onclick="closeThreadDetail()"><i class="ti ti-arrow-left"></i></button>
+        <div>
+          <div class="td-header-title">Thread</div>
+          <div class="td-header-subtitle" id="tdViewCount">14,9K tayangan</div>
+        </div>
+      </div>
+      <div class="td-header-actions">
+        <button class="td-header-action-btn" aria-label="Notifications"><i class="ti ti-bell"></i></button>
+        <button class="td-header-action-btn" aria-label="More"><i class="ti ti-dots"></i></button>
+      </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="td-scroll" id="tdScroll">
+      <!-- Original Post -->
+      <div class="td-original-post">
+        <div class="td-op-header">
+          <div class="td-op-avatar" id="tdOpAvatar" style="background: linear-gradient(135deg, var(--sage-light), var(--sage)); color:white;">
+            <i class="ti ti-leaf"></i>
+          </div>
+          <div class="td-op-info">
+            <div class="td-op-name" id="tdOpName">
+              Anonim
+              <span class="td-badge"><i class="ti ti-check"></i> Teman Pulih</span>
+            </div>
+            <div class="td-op-time" id="tdOpTime">2j lalu</div>
+          </div>
+          <button class="td-op-more"><i class="ti ti-dots"></i></button>
+        </div>
+        <p class="td-op-body" id="tdOpBody">Hari ini aku mencoba untuk tidak terlalu keras pada diriku sendiri. Kalau kamu juga sedang berjuang, ingat: setiap langkah kecil tetap berarti. 🤍</p>
+        <div class="td-op-actions">
+          <button class="td-action-btn" onclick="handleTdLike(this)">
+            <i class="ti ti-heart"></i>
+            <span class="td-action-count" id="tdLikeCount">48</span>
+          </button>
+          <button class="td-action-btn" onclick="document.getElementById('tdReplyInput').focus()">
+            <i class="ti ti-message-circle"></i>
+            <span class="td-action-count" id="tdCommentCount">12</span>
+          </button>
+          <button class="td-action-btn">
+            <i class="ti ti-repeat"></i>
+            <span class="td-action-count">4</span>
+          </button>
+          <button class="td-action-btn" onclick="openShareSheet()">
+            <i class="ti ti-send"></i>
+          </button>
+          <div class="td-action-spacer"></div>
+          <button class="td-action-btn">
+            <i class="ti ti-bookmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sort Bar -->
+      <div class="td-sort-bar">
+        <span class="td-sort-label">Top <i class="ti ti-chevron-down" style="font-size:0.8rem;"></i></span>
+        <button class="td-sort-action">Lihat aktivitas <i class="ti ti-chevron-right"></i></button>
+      </div>
+
+      <!-- Comments List -->
+      <div id="tdCommentsList">
+
+      </div>
+    </div>
+
+    <!-- Reply Input Bar -->
+    <div class="td-input-bar">
+      <div class="td-input-avatar"><i class="ti ti-user"></i></div>
+      <input type="text" class="td-input-field" id="tdReplyInput" placeholder="Add your reply..." oninput="toggleTdSendBtn()">
+      <div class="td-input-actions">
+        <button class="td-input-action-btn"><i class="ti ti-photo"></i></button>
+        <button class="td-input-action-btn" style="font-weight:700; font-size:1.1rem;">GIF</button>
+        <button class="td-input-send-btn" id="tdSendBtn" onclick="submitTdReply()"><i class="ti ti-arrow-up"></i></button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /.app-scroll -->
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" data-screen="screenHome" onclick="switchTab('home')">
+      <span class="nav-icon"><i class="ti ti-home"></i></span>
+      <span class="nav-label">Ruangku</span>
+    </button>
+    <button class="nav-item" data-screen="screenLearn" onclick="switchTab('learn')">
+      <span class="nav-icon"><i class="ti ti-book"></i></span>
+      <span class="nav-label">Belajar</span>
+    </button>
+    <button class="nav-item nav-center-btn" data-screen="screenConsult" onclick="switchTab('consult')">
+      <span class="nav-center-icon"><i class="ti ti-heart-handshake"></i></span>
+      <span class="nav-label">Konsultasi</span>
+    </button>
+    <button class="nav-item" data-screen="screenThreads" onclick="switchTab('threads')">
+      <span class="nav-icon"><i class="ti ti-message-circle-2"></i></span>
+      <span class="nav-label">Threads</span>
+    </button>
+    <button class="nav-item" data-screen="screenInbox" onclick="switchTab('inbox')">
+      <span class="nav-icon"><i class="ti ti-inbox"></i></span>
+      <span class="nav-label">Inbox</span>
+      <span class="nav-inbox-badge" id="navInboxBadge">1</span>
+    </button>
+  </nav>
+
+  <!-- ===== SETTINGS PANEL ===== -->
+  <div class="settings-overlay" id="profileOverlay">
+    <div class="settings-panel" id="settingsPanel">
+      <!-- Settings Header -->
+      <div class="settings-header">
+        <h2>Pengaturan</h2>
+        <button class="settings-close-btn" onclick="toggleProfile()"><i class="ti ti-x"></i></button>
+      </div>
+
+      <div class="settings-scroll">
+        <!-- Profile Card -->
+        <div class="settings-profile-card">
+          <div class="settings-avatar" id="settingsAvatar" onclick="changeProfilePicture()">
+            <i class="ti ti-user" style="font-size:2.2rem; color:var(--sage-dark);"></i>
+            <div class="settings-avatar-edit"><i class="ti ti-camera"></i></div>
+          </div>
+          <div class="settings-profile-info">
+            <input class="settings-name-input" id="profileNameInput" type="text" placeholder="Nama kamu" value="Sahabat" oninput="showProfileEditActions()">
+            <textarea class="settings-bio-input" id="profileBioInput" placeholder="Tulis bio singkat..." rows="2" oninput="showProfileEditActions()"></textarea>
+          </div>
+        </div>
+        <div class="profile-edit-actions" id="profileEditActions">
+          <button class="profile-edit-cancel" onclick="cancelProfileEdit()"><i class="ti ti-x"></i> Batal</button>
+          <button class="profile-edit-save" onclick="confirmProfileEdit()"><i class="ti ti-check"></i> Simpan</button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="settings-stats">
+          <div class="settings-stat-item">
+            <span class="settings-stat-value" id="statMoods">0</span>
+            <span class="settings-stat-label">Mood</span>
+          </div>
+          <div class="settings-stat-item">
+            <span class="settings-stat-value" id="statJournals">0</span>
+            <span class="settings-stat-label">Jurnal</span>
+          </div>
+          <div class="settings-stat-item">
+            <span class="settings-stat-value" id="statStreak">0</span>
+            <span class="settings-stat-label">Streak</span>
+          </div>
+        </div>
+
+        <!-- Wellness -->
+        <div class="settings-group">
+          <div class="settings-group-title">Aktivitas Wellness</div>
+          <div class="settings-item" onclick="toggleProfile(); switchTab('mood');">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(95,122,97,0.12); color:var(--sage);"><i class="ti ti-chart-bar"></i></div>
+              <div>
+                <span>Pelacak Mood</span>
+                <small class="settings-item-desc">Pantau dan catat kondisi emosionalmu</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="settings-group">
+          <div class="settings-group-title">Tampilan</div>
+          <div class="settings-item" onclick="toggleDarkMode()">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(95,122,97,0.12); color:var(--sage);"><i class="ti ti-moon-stars"></i></div>
+              <span>Mode Gelap</span>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="settings-group">
+          <div class="settings-group-title">Akun</div>
+          
+          <div class="settings-item" onclick="openAffiliationModal()">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(45,106,79,0.12); color:var(--sage-dark);"><i class="ti ti-building"></i></div>
+              <div>
+                <span>Afiliasi Institusi</span>
+                <small class="settings-item-desc" id="affStatusText">Tautkan akun dengan perusahaan/kampus</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+
+          <div class="settings-item" onclick="openSubscriptionModal()">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(82,183,136,0.12); color:var(--sage-light);"><i class="ti ti-crown"></i></div>
+              <div>
+                <span>Langganan</span>
+                <small class="settings-item-desc" id="subStatusText">Komunitas (Free)</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+
+          <div class="settings-item" onclick="openSettingsSection('kyc')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(166,123,91,0.12); color:var(--coral);"><i class="ti ti-id"></i></div>
+              <div>
+                <span>Verifikasi Identitas (KYC)</span>
+                <small class="settings-item-desc">Unggah KTP untuk akses fitur Teman Pulih</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="openSettingsSection('email')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(217,217,217,0.3); color:var(--sky-dark);"><i class="ti ti-mail"></i></div>
+              <span>Email</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="openSettingsSection('phone')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(217,217,217,0.3); color:var(--sky-dark);"><i class="ti ti-phone"></i></div>
+              <span>Nomor Telepon</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="settings-group">
+          <div class="settings-group-title">Konten</div>
+          <div class="settings-item" onclick="openSettingsSection('saved')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(95,122,97,0.12); color:var(--sage);"><i class="ti ti-bookmark"></i></div>
+              <span>Tersimpan</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="openSettingsSection('liked')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(231,76,60,0.1); color:#E74C3C;"><i class="ti ti-heart"></i></div>
+              <span>Disukai</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="openSettingsSection('archive')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(217,217,217,0.3); color:var(--sky-dark);"><i class="ti ti-archive"></i></div>
+              <span>Arsip</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+        </div>
+
+        <!-- Insights -->
+        <div class="settings-group">
+          <div class="settings-group-title">Insights</div>
+          <div class="settings-item" onclick="openSettingsSection('thread-insights')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(166,123,91,0.12); color:var(--coral);"><i class="ti ti-chart-line"></i></div>
+              <div>
+                <span>Performa Threads</span>
+                <small class="settings-item-desc">Lihat performa postinganmu</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="toggleKpiDashboard()">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(95,122,97,0.12); color:var(--sage);"><i class="ti ti-dashboard"></i></div>
+              <div>
+                <span>Teman Pulih Insights</span>
+                <small class="settings-item-desc">KPI Monitoring & Analytics</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+        </div>
+
+        <!-- Privacy & Support -->
+        <div class="settings-group">
+          <div class="settings-group-title">Privasi & Bantuan</div>
+          <div class="settings-item" onclick="openSettingsSection('privacy')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(95,122,97,0.12); color:var(--sage);"><i class="ti ti-shield-lock"></i></div>
+              <span>Pengaturan Privasi</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="openSettingsSection('help')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(217,217,217,0.3); color:var(--sky-dark);"><i class="ti ti-help-circle"></i></div>
+              <span>Pusat Bantuan</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="openSettingsSection('about')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(217,217,217,0.3); color:var(--sky-dark);"><i class="ti ti-info-circle"></i></div>
+              <div>
+                <span>Tentang</span>
+                <small class="settings-item-desc">Privacy Policy & Terms of Use</small>
+              </div>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+        </div>
+
+        <!-- Developer Settings -->
+        <div class="settings-group dev-settings-group">
+          <div class="settings-group-title"><i class="ti ti-code" style="margin-right:4px;"></i> Developer Mode</div>
+          
+          <div class="settings-item" onclick="window.location.href='admin.html'">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-building"></i></div>
+              <div>
+                <span>B2B Admin Portal</span>
+                <small class="settings-item-desc">Buka dashboard admin (Desktop)</small>
+              </div>
+            </div>
+            <i class="ti ti-external-link settings-chevron"></i>
+          </div>
+          <div class="settings-item" onclick="toggleDevSetting('masterUnlock')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-lock-open"></i></div>
+              <div>
+                <span>Master Unlock</span>
+                <small class="settings-item-desc">Buka semua fitur sekaligus</small>
+              </div>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="devMasterUnlock" checked onchange="toggleDevSetting('masterUnlock')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-item" onclick="toggleDevSetting('kycVerified')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-id"></i></div>
+              <div>
+                <span>KYC Verified</span>
+                <small class="settings-item-desc">Bypass verifikasi identitas</small>
+              </div>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="devKycVerified" checked onchange="toggleDevSetting('kycVerified')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-item" onclick="toggleDevSetting('threadInteract')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-heart"></i></div>
+              <div>
+                <span>Thread Interactions</span>
+                <small class="settings-item-desc">Like, komentar, buat thread</small>
+              </div>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="devThreadInteract" checked onchange="toggleDevSetting('threadInteract')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-item" onclick="toggleDevSetting('storyPost')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-camera"></i></div>
+              <div>
+                <span>Story Posting</span>
+                <small class="settings-item-desc">Posting status & cerita</small>
+              </div>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="devStoryPost" checked onchange="toggleDevSetting('storyPost')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-item" onclick="toggleDevSetting('backendSim')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-server"></i></div>
+              <div>
+                <span>Backend Simulation</span>
+                <small class="settings-item-desc">Simulasi fitur yang butuh server</small>
+              </div>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="devBackendSim" checked onchange="toggleDevSetting('backendSim')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-item" onclick="toggleDevSetting('premiumUser')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(155,89,182,0.12); color:#9B59B6;"><i class="ti ti-crown"></i></div>
+              <div>
+                <span>Premium Subscriber</span>
+                <small class="settings-item-desc">Simulasi user premium + Supporter badge</small>
+              </div>
+            </div>
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" id="devPremiumUser" onchange="toggleDevSetting('premiumUser')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-group">
+          <div class="settings-item settings-item-danger" onclick="handleLogout()">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(231,76,60,0.1); color:#E74C3C;"><i class="ti ti-logout"></i></div>
+              <span>Keluar</span>
+            </div>
+          </div>
+          <div class="settings-item settings-item-danger" onclick="openSettingsSection('delete-account')">
+            <div class="settings-item-left">
+              <div class="settings-item-icon" style="background:rgba(231,76,60,0.1); color:#E74C3C;"><i class="ti ti-trash"></i></div>
+              <span>Nonaktifkan / Hapus Akun</span>
+            </div>
+            <i class="ti ti-chevron-right settings-chevron"></i>
+          </div>
+        </div>
+
+        <p class="settings-version">Ruang Pulih v1.0.0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NOTIFICATION PANEL ===== -->
+  <!-- ===== KPI DASHBOARD OVERLAY ===== -->
+  <div class="settings-overlay" id="kpiOverlay">
+    <div class="settings-panel" id="kpiPanel">
+      <div class="settings-header">
+        <h2><i class="ti ti-dashboard" style="color:var(--sage);"></i> Dashboard KPI</h2>
+        <button class="settings-close-btn" onclick="toggleKpiDashboard()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="settings-scroll kpi-scroll" style="background: var(--bg); padding: 16px; gap: 16px; display: flex; flex-direction: column;">
+        
+        <!-- KPI 1 & 2 Row -->
+        <div class="kpi-grid-2">
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Total Threads</span>
+              <span class="kpi-trend positive"><i class="ti ti-trending-up"></i> 12%</span>
+            </div>
+            <div class="kpi-value">1,245</div>
+            <div class="kpi-chart-mini sparkline-1"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Avg Replies</span>
+              <span class="kpi-trend positive"><i class="ti ti-trending-up"></i> 5%</span>
+            </div>
+            <div class="kpi-value">4.2<span class="kpi-unit">/thread</span></div>
+            <div class="kpi-chart-mini sparkline-2"></div>
+          </div>
+        </div>
+
+        <!-- KPI 3: Total Sessions -->
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span class="kpi-title">Konsultasi Privat</span>
+            <span class="kpi-trend positive"><i class="ti ti-trending-up"></i> 8%</span>
+          </div>
+          <div class="kpi-value">342<span class="kpi-unit"> sesi bulan ini</span></div>
+          <div class="kpi-bar-chart">
+            <div class="kpi-bar" style="height: 40%;"></div>
+            <div class="kpi-bar" style="height: 60%;"></div>
+            <div class="kpi-bar" style="height: 80%;"></div>
+            <div class="kpi-bar" style="height: 50%;"></div>
+            <div class="kpi-bar" style="height: 90%;"></div>
+            <div class="kpi-bar" style="height: 70%;"></div>
+            <div class="kpi-bar active" style="height: 100%;"></div>
+          </div>
+          <div class="kpi-bar-labels">
+            <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+          </div>
+        </div>
+
+        <!-- KPI 4: Avg Wait Time -->
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span class="kpi-title">Rata-rata Waktu Tunggu</span>
+            <span class="kpi-trend negative"><i class="ti ti-trending-down"></i> 2%</span>
+          </div>
+          <div class="kpi-value">2<span class="kpi-unit">m</span> 14<span class="kpi-unit">s</span></div>
+          <div class="kpi-progress-bg">
+            <div class="kpi-progress-fill" style="width: 30%; background: var(--coral);"></div>
+          </div>
+          <div class="kpi-subtitle">Target SLA: &lt; 3 menit</div>
+        </div>
+
+        <!-- KPI 5 & 6 Row -->
+        <div class="kpi-grid-2">
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Returning User</span>
+            </div>
+            <div class="kpi-donut-container">
+              <div class="kpi-donut" style="--percent: 45;">
+                <div class="kpi-donut-inner">45%</div>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">CSAT Score</span>
+            </div>
+            <div class="kpi-value">4.8<span class="kpi-unit">/5.0</span></div>
+            <div class="kpi-stars">
+              <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i>
+            </div>
+            <div class="kpi-subtitle">Dari 280 ulasan</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== SOS WELCOME POPUP ===== -->
+  <div class="sos-welcome" id="sosWelcome">
+    <div class="sos-welcome-content">
+      <div class="sos-welcome-icon">🤝</div>
+      <h2>Kamu Tidak Sendirian</h2>
+      <p>Jika kamu atau seseorang yang kamu kenal sedang dalam krisis, tekan tombol <strong>SOS</strong> kapan saja untuk terhubung dengan bantuan profesional.</p>
+      <div class="sos-welcome-preview">
+        <div class="sos-preview-btn">SOS</div>
+        <span>Selalu tersedia di pojok kanan bawah</span>
+      </div>
+      <button class="sos-welcome-dismiss" onclick="dismissSosWelcome()">Mengerti, Terima Kasih 💚</button>
+    </div>
+  </div>
+
+  <!-- ===== CHAT OVERLAY ===== -->
+  <div class="chat-overlay" id="chatOverlay">
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-user">
+          <div class="chat-header-avatar-container">
+            <div class="chat-header-avatar" id="chatPsychAvatar">DS</div>
+            <span class="chat-status-dot" id="chatPsychStatus"></span>
+          </div>
+          <div>
+            <h4 id="chatPsychName">Dr. Dian Sasmita, M.Psi.</h4>
+            <p id="chatPsychSpecialty">Kecemasan & Trauma</p>
+          </div>
+        </div>
+        <button class="chat-close-btn" onclick="closeChat()"><i class="ti ti-x"></i></button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <!-- Message list populated dynamically -->
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" id="chatInputText" placeholder="Ketik pesan di sini..." onkeydown="handleChatKey(event)">
+        <button class="chat-send-btn" onclick="sendChatMessage()"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHARE BOTTOM SHEET ===== -->
+  <div class="share-overlay" id="shareOverlay" onclick="closeShareSheet(event)">
+    <div class="share-sheet" id="shareSheet">
+      <div class="share-drag-handle"></div>
+
+      <!-- Search -->
+      <div class="share-search">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Cari profil Lingkar Pulih" id="shareSearchInput">
+      </div>
+
+      <!-- Profile List -->
+      <div class="share-profiles" id="shareProfiles">
+        <div class="share-profile" onclick="shareToProfile(this)">
+          <div class="share-profile-avatar" style="background:linear-gradient(135deg,var(--sage-light),var(--sage));color:#fff;"><i class="ti ti-leaf"></i></div>
+          <span class="share-profile-name">hasyaapp</span>
+          <span class="share-profile-sub">Hasya</span>
+        </div>
+        <div class="share-profile" onclick="shareToProfile(this)">
+          <div class="share-profile-avatar" style="background:linear-gradient(135deg,#B8D4E3,#7BA7C2);color:#fff;"><i class="ti ti-cloud"></i></div>
+          <span class="share-profile-name">mindful.ina</span>
+          <span class="share-profile-sub">Ina</span>
+        </div>
+        <div class="share-profile" onclick="shareToProfile(this)">
+          <div class="share-profile-avatar" style="background:linear-gradient(135deg,#E8D5B7,#C4A265);color:#fff;"><i class="ti ti-star"></i></div>
+          <span class="share-profile-name">yana_vix</span>
+          <span class="share-profile-sub">Yana</span>
+        </div>
+        <div class="share-profile" onclick="shareToProfile(this)">
+          <div class="share-profile-avatar" style="background:var(--text-primary);color:var(--bg);"><i class="ti ti-user"></i></div>
+          <span class="share-profile-name">pulih.pelan</span>
+          <span class="share-profile-sub">Pelan</span>
+        </div>
+        <div class="share-profile" onclick="shareToProfile(this)">
+          <div class="share-profile-avatar" style="background:linear-gradient(135deg,#D4B8E8,#9B59B6);color:#fff;"><i class="ti ti-flower"></i></div>
+          <span class="share-profile-name">sehat.jiwa</span>
+          <span class="share-profile-sub">Jiwa</span>
+        </div>
+        <div class="share-profile" onclick="shareToProfile(this)">
+          <div class="share-profile-avatar" style="background:linear-gradient(135deg,#F5D0C5,#E74C3C);color:#fff;"><i class="ti ti-heart"></i></div>
+          <span class="share-profile-name">self.care.id</span>
+          <span class="share-profile-sub">Care</span>
+        </div>
+      </div>
+
+      <!-- App Share Row -->
+      <div class="share-apps">
+        <div class="share-app" onclick="shareToApp('share-to')">
+          <div class="share-app-icon" style="background:var(--sage);"><i class="ti ti-share"></i></div>
+          <span>Share to</span>
+        </div>
+        <div class="share-app" onclick="shareToApp('copy-link')">
+          <div class="share-app-icon" style="background:var(--text-muted);"><i class="ti ti-link"></i></div>
+          <span>Copy<br>link</span>
+        </div>
+        <div class="share-app" onclick="shareToApp('messages')">
+          <div class="share-app-icon" style="background:#34C759;"><i class="ti ti-message"></i></div>
+          <span>Messages</span>
+        </div>
+        <div class="share-app" onclick="shareToApp('notes')">
+          <div class="share-app-icon" style="background:#F1C40F;"><i class="ti ti-note"></i></div>
+          <span>Notes</span>
+        </div>
+        <div class="share-app" onclick="shareToApp('mail')">
+          <div class="share-app-icon" style="background:#3498DB;"><i class="ti ti-mail"></i></div>
+          <span>Mail</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== NOTIF OVERLAY ===== -->
+  <div class="notif-overlay" id="notifOverlay">
+    <div class="notif-panel">
+      <div class="notif-header">
+        <h2>Notifikasi</h2>
+        <button class="notif-close-btn" onclick="toggleNotif()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="notif-list">
+        <div class="notif-item">
+          <div class="notif-icon" style="background: rgba(166,123,91,0.15); color:var(--coral);"><i class="ti ti-heart"></i></div>
+          <div class="notif-content">
+            <p>Seseorang menyukai ceritamu di Lingkar Pulih.</p>
+            <span class="notif-time">2j lalu</span>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background: rgba(95,122,97,0.15); color:var(--sage);"><i class="ti ti-calendar-event"></i></div>
+          <div class="notif-content">
+            <p>Pengingat: Konsultasi dengan Psikolog besok pukul 10:00.</p>
+            <span class="notif-time">5j lalu</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AFFILIATION MODAL ===== -->
+  <div class="modal-overlay" id="affiliationModal">
+    <div class="modal-sheet">
+      <div class="modal-sheet-handle"></div>
+      <div class="gratitude-header">
+        <span class="gratitude-icon"><i class="ti ti-building" style="color:var(--sage-dark);"></i></span>
+        <h3>Afiliasi Institusi</h3>
+        <p>Buka akses event eksklusif dan Private Hub komunitas lembagamu.</p>
+      </div>
+      
+      <div id="affUnlinkedState">
+        <div class="gratitude-entries" style="margin-top:20px;">
+          <input type="email" class="journal-input" id="affEmailInput" placeholder="Email Institusi (misal: @binus.edu)" style="min-height:50px;">
+          <p style="text-align:center; margin:10px 0; color:var(--text-muted); font-size:0.8rem;">ATAU</p>
+          <input type="text" class="journal-input" id="affCodeInput" placeholder="Kode Invite (misal: BINUS-XYZ)" style="min-height:50px; text-transform:uppercase;">
+        </div>
+        <button class="modal-primary-btn" style="margin-top:24px;" onclick="verifyAffiliation()">Verifikasi Afiliasi</button>
+      </div>
+
+      <div id="affLinkedState" style="display:none; text-align:center; padding: 20px 0;">
+        <div style="font-size:3rem; color:var(--sage);"><i class="ti ti-circle-check-filled"></i></div>
+        <h4 style="margin: 12px 0 4px;">Akun Tertaut!</h4>
+        <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom: 24px;">Kamu tergabung dalam <strong id="affLinkedName">Bina Nusantara</strong>.</p>
+        
+        <div style="background:var(--bg); border-radius:var(--radius); padding:16px; text-align:left; margin-bottom: 24px;">
+          <h4 style="font-size:0.9rem; margin-bottom: 8px;">Privasi & Anomimitas</h4>
+          <label class="toggle-switch" style="display:flex; justify-content:space-between; width:100%;">
+            <span style="font-size:0.85rem; color:var(--text-secondary);">Sembunyikan profil dari rekan kerja di Hub</span>
+            <div>
+              <input type="checkbox" id="anonToggle" checked>
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+        </div>
+
+        <button class="btn-outline" style="width:100%; padding:12px; border-radius:50px; border:1px solid var(--coral); color:var(--coral); font-weight:600; background:transparent;" onclick="unlinkAffiliation()">Putuskan Tautan</button>
+      </div>
+
+      <button class="modal-secondary-btn" style="margin-top:12px;" onclick="closeAffiliationModal()">Tutup</button>
+    </div>
+  </div>
+
+  <!-- ===== SUBSCRIPTION MODAL ===== -->
+  <div class="subscription-overlay" id="subscriptionModal">
+    <!-- Close button -->
+    <button class="sub-close-btn" onclick="closeSubscriptionModal()"><i class="ti ti-x"></i></button>
+
+    <!-- Scrollable content -->
+    <div class="sub-scroll">
+      <!-- Hero -->
+      <div class="sub-hero">
+        <div class="sub-hero-icon"><i class="ti ti-heart-handshake"></i></div>
+        <h2>Dapatkan Teman Pulih</h2>
+        <p>Akses Teman Pulih yang terlatih dan tersertifikasi HIMPSI.</p>
+      </div>
+
+      <!-- Segmented Tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab active" id="subTabFree" onclick="switchSubTab('free')">Komunitas</button>
+        <button class="sub-tab" id="subTabPremium" onclick="switchSubTab('premium')">Premium</button>
+      </div>
+
+      <!-- Feature Comparison Table -->
+      <div class="sub-compare-card">
+        <div class="sub-compare-header">
+          <span class="sub-compare-label">Fitur</span>
+          <span class="sub-compare-col" id="colLabelFree">Free</span>
+          <span class="sub-compare-col active" id="colLabelPremium">Premium</span>
+        </div>
+
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Mood tracker (AI)</span>
+          <span class="sub-compare-val" data-col="free"><i class="ti ti-check"></i></span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Jurnal Cepat</span>
+          <span class="sub-compare-val" data-col="free"><i class="ti ti-check"></i></span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Forum Lingkar Pulih</span>
+          <span class="sub-compare-val" data-col="free"><i class="ti ti-check"></i></span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">SOS 24/7</span>
+          <span class="sub-compare-val" data-col="free"><i class="ti ti-check"></i></span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Chat Teman Pulih</span>
+          <span class="sub-compare-val muted" data-col="free">—</span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Pilih spesialisasi</span>
+          <span class="sub-compare-val muted" data-col="free">—</span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Tren wellbeing visual</span>
+          <span class="sub-compare-val muted" data-col="free">—</span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+        <div class="sub-compare-row">
+          <span class="sub-compare-feat">Supporter badge</span>
+          <span class="sub-compare-val muted" data-col="free">—</span>
+          <span class="sub-compare-val active" data-col="premium"><i class="ti ti-check"></i></span>
+        </div>
+      </div>
+
+      <!-- B2B link -->
+      <div class="sub-b2b-link" onclick="contactB2B()">
+        <div class="sub-b2b-link-left">
+          <i class="ti ti-building"></i>
+          <span>Untuk kampus atau perusahaan? <strong>Hubungi tim kami</strong></span>
+        </div>
+        <i class="ti ti-chevron-right"></i>
+      </div>
+    </div>
+
+    <!-- Sticky Bottom CTA -->
+    <div class="sub-sticky-cta">
+      <button class="sub-cta-btn sub-cta-premium" id="subCtaPremium" onclick="subscribePremium()">Upgrade seharga Rp 49.000</button>
+      <p class="sub-cta-note" id="subCtaNote">Perpanjang otomatis bulanan. Batalkan kapan saja.</p>
+    </div>
+  </div>
+
+  <!-- ===== PREMIUM CONVERSION NUDGE ===== -->
+  <div class="premium-nudge" id="premiumNudge">
+    <div class="premium-nudge-header">
+      <i class="ti ti-heart-handshake"></i>
+      <h4>Kamu Layak Didengar</h4>
+    </div>
+    <p>Mood tracker-mu menunjukkan beberapa hari berat. Bicara dengan Teman Pulih yang terlatih bisa membantu — dan kamu tidak harus menanggungnya sendiri.</p>
+    <div class="premium-nudge-actions">
+      <button class="premium-nudge-dismiss" onclick="dismissPremiumNudge()">Nanti saja</button>
+      <button class="premium-nudge-cta" onclick="dismissPremiumNudge(); openSubscriptionModal();">Lihat Premium</button>
+    </div>
+  </div>
+
+    </div><!-- /#app -->
+    <div class="simulated-home-indicator"></div>
+  </div><!-- /.device-frame -->
+</div><!-- /#simulator-container -->
+
+<!-- Floating Screenshot Button -->
+<button onclick="takeScreenshot()" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; padding: 14px 24px; background: var(--sage); color: white; border: none; border-radius: 50px; font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(45, 106, 79, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+  <i class="ti ti-camera"></i> Capture Mockup
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
