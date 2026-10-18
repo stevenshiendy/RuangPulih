@@ -1088,7 +1088,7 @@ function openPrivacy() {
     body: `<div class="list">${[
       ['ph-mask-happy', 'Anonim di komunitas', 'Nama aslimu tidak pernah tampil di Lingkar Pulih.'],
       ['ph-lock-key', 'Percakapan terenkripsi', 'Chat dengan Teman Pulih & psikolog dienkripsi end-to-end.'],
-      ['ph-buildings', 'Institusi hanya melihat agregat', 'Kampus/kantor mitra hanya menerima data anonim dan teragregasi.'],
+      ['ph-buildings', 'Kampus hanya melihat yang kamu izinkan', 'Bawaannya hanya statistik anonim. Data personal dibagikan bila kamu memilihnya di Data untuk kampus.'],
       ['ph-trash', 'Kendali penuh', 'Hapus seluruh datamu kapan saja dari halaman ini.'],
     ].map(([i, t, d]) => `<div class="list-item"><span class="li-ic"><i class="ph ${i}"></i></span><div class="grow"><p class="h3" style="font-size:15px">${t}</p><p class="tiny">${d}</p></div></div>`).join('')}</div>`,
   });
@@ -1139,7 +1139,7 @@ function openAffiliation() {
       title: '<h2 class="h2">Institusi mitra</h2>',
       body: `
         <div class="card card-forest row"><i class="ph-fill ph-buildings" style="font-size:26px"></i><div class="grow"><p class="h3">${esc(state.org)}</p><p class="muted" style="font-size:13px">Konsultasi & Teman Pulih gratis</p></div></div>
-        <button class="btn btn-ghost btn-block mt-16" onclick="state.org=null;persist();closeSheet();rerender();toast('Tautan institusi dilepas','ph-link-break')">Lepas tautan</button>`,
+        <button class="btn btn-ghost btn-block mt-16" onclick="state.org=null;state.campusShare=null;persist();closeSheet();rerender();toast('Tautan institusi dilepas','ph-link-break')">Lepas tautan</button>`,
     });
     return;
   }
@@ -1162,8 +1162,9 @@ function verifyOrg() {
     msg.style.color = 'var(--clay)';
     return;
   }
-  state.org = org[1]; persist(); closeSheet(); rerender();
+  state.org = org[1]; state.campusShare = null; persist(); rerender();
   toast(`Terhubung dengan ${org[1]}`, 'ph-check-circle');
+  openCampusConsent('onboard');
 }
 
 // ---------- Tools: breathing ----------

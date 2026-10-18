@@ -312,4 +312,6 @@ function finishAuth() {
   go('home');
   showSosFab();
   toast(p.org ? `Terhubung dengan ${p.org} · konsultasi gratis` : `Selamat datang, ${state.name}`, 'ph-hand-waving');
+  // Campus members choose what their institution may see before anything beyond anonymous totals is shared.
+  if (state.org && !state.campusShare?.decided) setTimeout(() => openCampusConsent('onboard'), 900);
 }

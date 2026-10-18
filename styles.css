@@ -1004,6 +1004,18 @@ i.ph, i.ph-fill { line-height: 1; }
 .nav-label { white-space: nowrap; letter-spacing: -.01em; }
 @container (max-width: 389px) { .nav-btn { font-size: 10.5px; } }
 
+/* ---------- Data untuk kampus (consent) ---------- */
+.consent-hero { position: relative; overflow: hidden; padding: 22px 22px 22px; padding-right: 120px; border-radius: var(--r-xl); background: var(--forest); color: var(--on-forest); }
+.consent-hero .display { color: inherit; }
+.consent-hero-art { position: absolute; right: -6px; bottom: -4px; width: 120px; opacity: .95; }
+.list-item.sub { padding-left: 34px; background: color-mix(in srgb, var(--sunken) 40%, transparent); }
+.never { padding: 14px 16px; border-radius: var(--r-lg); background: var(--forest-tint); color: var(--forest-deep); }
+.never .h3 { display: flex; align-items: center; gap: 6px; }
+.never ul { margin: 8px 0 0 18px; font-size: 13.5px; line-height: 1.6; }
+.consent-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.consent-actions .btn { width: 100%; padding: 0 12px; }
+@container (max-width: 389px) { .consent-hero { padding-right: 22px; } .consent-hero-art { display: none; } }
+
 /* ---------- Brand logos & OTP channels ---------- */
 .logo { width: 20px; height: 20px; flex: none; display: block; }
 .logo.inline { display: inline-block; width: 15px; height: 15px; vertical-align: -2px; }

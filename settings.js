@@ -16,6 +16,7 @@ const SETTINGS = [
     { id: 'name', icon: 'ph-user', label: 'Nama panggilan', desc: 'Hanya terlihat olehmu dan konselormu.', type: 'link', value: () => state.name, action: 'openEditName()' },
     { id: 'login', icon: 'ph-key', label: 'Metode masuk', desc: 'Akun yang terhubung ke Ruang Pulih.', type: 'info', value: () => accountLabel() },
     { id: 'org', icon: 'ph-buildings', label: 'Institusi mitra', desc: 'Konsultasi & Teman Pulih gratis lewat kampus/kantor.', type: 'link', value: () => state.org || 'Belum ditautkan', action: 'openAffiliation()' },
+    { id: 'campus', icon: 'ph-hand-heart', label: 'Data untuk kampus', desc: 'Atur data yang boleh dilihat konselor kampusmu.', type: 'link', value: () => state.org ? campusSummary() : '—', action: 'openCampusConsent()' },
     { id: 'plan', icon: 'ph-sparkle', label: 'Langganan', desc: 'Paket aktif dan masa coba.', type: 'link', value: () => state.premium ? (state.trial ? 'Coba gratis' : 'Premium') : 'Gratis', action: 'openPremium()' },
   ] },
   { group: 'Keselamatan', items: [
@@ -211,4 +212,92 @@ function logout() {
   state.account = null; persist();
   closeSheet(); hideSosFab();
   renderAuth('intro');
+}
+
+// ---------- Data untuk kampus (consent for the partner institution) ----------
+// Default is anonymous statistics only. Anything identifiable is opt-in, per item, revocable,
+// visible only to licensed counsellors, and never a condition for free access (UU PDP: explicit consent for health data).
+const CARE_ITEMS = [
+  { key: 'mood', icon: 'ph-chart-line', label: 'Tren suasana hati mingguan', desc: 'Rata-rata check-in per minggu — bukan isi catatanmu.' },
+  { key: 'check', icon: 'ph-clipboard-text', label: 'Hasil Cek Diri', desc: 'Skor dan kategori, agar konselor tahu kapan perlu menyapa.' },
+  { key: 'sos', icon: 'ph-lifebuoy', label: 'Pemberitahuan saat kamu menekan SOS', desc: 'Konselor menghubungimu dalam 1×24 jam untuk memastikan kamu aman.' },
+];
+const emptyShare = () => ({ decided: false, care: false, mood: false, check: false, sos: false, research: false, at: null });
+function campusSummary() {
+  const c = state.campusShare;
+  if (!c || !c.decided) return 'Belum dipilih';
+  if (c.care) return `Pendampingan · ${CARE_ITEMS.filter(i => c[i.key]).length} data`;
+  return c.research ? 'Anonim + penelitian' : 'Hanya anonim';
+}
+function openCampusConsent(context = 'settings') {
+  if (!state.org) return openAffiliation();
+  ui.campusDraft ||= { ...(state.campusShare || emptyShare()) };
+  ui.campusContext = context;
+  const d = ui.campusDraft;
+  const org = esc(state.org);
+  const sw = (on, fn, label) => `<button class="switch ${on ? 'on' : ''}" role="switch" aria-checked="${on}" aria-label="${label}" onclick="${fn}"></button>`;
+  const body = `
+    <div class="consent-hero">
+      <div class="consent-hero-art">${ILLO.together()}</div>
+      <span class="tag" style="background:rgba(255,255,255,.16);color:inherit"><i class="ph-fill ph-buildings"></i>${org}</span>
+      <h2 class="display" style="font-size:26px;margin-top:10px">${org} peduli pada kesejahteraanmu</h2>
+      <p style="font-size:14px;opacity:.88;margin-top:8px">Dengan izinmu, tim konseling kampus bisa mempelajari pola, menganalisis kebutuhan mahasiswa, dan menyiapkan pendampingan yang sesuai untukmu. Kamu yang memutuskan apa yang dibagikan.</p>
+    </div>
+
+    <p class="set-group-title mt-20">Selalu dibagikan · anonim</p>
+    <div class="list"><div class="list-item"><span class="li-ic"><i class="ph ph-chart-pie-slice"></i></span>
+      <div class="grow"><p style="font-size:15px">Statistik gabungan</p><p class="tiny">Hanya total kelompok minimal 10 orang. Kamu tidak bisa dikenali dari sini.</p></div>
+      <span class="tag tag-plain"><i class="ph ph-lock-simple"></i>Anonim</span></div></div>
+
+    <p class="set-group-title mt-20">Pendampingan personal · pilihanmu</p>
+    <div class="list">
+      <div class="list-item"><span class="li-ic"><i class="ph ph-hand-heart"></i></span>
+        <div class="grow"><p style="font-size:15px">Ikut Program Pendampingan ${org}</p><p class="tiny">Konselor berlisensi di kampusmu dapat melihat data di bawah ini dengan namamu, untuk menyapamu lebih awal.</p></div>
+        ${sw(d.care, 'toggleCampus(\'care\')', 'Ikut Program Pendampingan')}</div>
+      ${d.care ? CARE_ITEMS.map(i => `
+        <div class="list-item sub"><span class="li-ic"><i class="ph ${i.icon}"></i></span>
+          <div class="grow"><p style="font-size:14.5px">${i.label}</p><p class="tiny">${i.desc}</p></div>
+          ${sw(d[i.key], `toggleCampus('${i.key}')`, i.label)}</div>`).join('') : ''}
+    </div>
+
+    <p class="set-group-title mt-20">Penelitian · pilihanmu</p>
+    <div class="list"><div class="list-item"><span class="li-ic"><i class="ph ph-flask"></i></span>
+      <div class="grow"><p style="font-size:15px">Bantu penelitian kesejahteraan mahasiswa</p><p class="tiny">Data tanpa nama dipakai untuk studi ${org} yang disetujui komite etik.</p></div>
+      ${sw(d.research, 'toggleCampus(\'research\')', 'Ikut penelitian')}</div></div>
+
+    <div class="never mt-20">
+      <p class="h3" style="font-size:14px"><i class="ph-fill ph-shield-check"></i> Tidak pernah dibagikan ke kampus</p>
+      <ul>
+        <li>Isi chat dengan Teman Pulih atau psikolog</li>
+        <li>Jurnal, catatan, dan isi check-in</li>
+        <li>Postingan dan identitasmu di Lingkar Pulih</li>
+        <li>Data apa pun untuk nilai, beasiswa, atau sanksi</li>
+      </ul>
+    </div>
+    <p class="tiny mt-16">Kamu bisa mengubah atau mencabut izin kapan saja di Pengaturan → Data untuk kampus. Pilihanmu tidak memengaruhi akses gratis dari ${org}.</p>
+    <div class="consent-actions">
+      <button class="btn btn-ghost" onclick="saveCampus(false)">Hanya data anonim</button>
+      <button class="btn btn-primary" onclick="saveCampus(true)">Simpan pilihan</button>
+    </div>`;
+  // Already open: swap the body in place so the draft (and scroll position) survive each toggle.
+  const open = ui.sheetKind === 'campus' && document.querySelector('#sheet .sheet-body');
+  if (open) { const keep = open.scrollTop; open.innerHTML = body; open.scrollTop = keep; return; }
+  openSheet({ full: true, kind: 'campus', title: '<h2 class="h2">Data untuk kampus</h2>', body,
+    onClose: () => { ui.campusDraft = null; } });
+}
+function toggleCampus(key) {
+  const d = ui.campusDraft;
+  d[key] = !d[key];
+  if (key === 'care') CARE_ITEMS.forEach(i => { d[i.key] = d.care; });
+  if (CARE_ITEMS.some(i => i.key === key) && !CARE_ITEMS.some(i => d[i.key])) d.care = false;
+  openCampusConsent(ui.campusContext);
+}
+function saveCampus(keepChoices) {
+  const d = keepChoices ? ui.campusDraft : emptyShare();
+  state.campusShare = { ...d, decided: true, at: dayKey() };
+  persist();
+  ui.campusDraft = null;
+  closeSheet();
+  rerender();
+  toast(state.campusShare.care ? `Terima kasih. Konselor ${state.org} kini bisa mendampingimu.` : 'Pilihanmu tersimpan · hanya data anonim', 'ph-check-circle');
 }
