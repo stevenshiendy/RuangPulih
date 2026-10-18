@@ -40,10 +40,11 @@ const SETTINGS = [
   { group: 'Tampilan', items: [
     { id: 'theme', icon: 'ph-moon', label: 'Mode gelap', desc: 'Lebih nyaman di malam hari.', type: 'toggle', get: () => state.theme === 'dark', set: v => { state.theme = v ? 'dark' : 'light'; } },
     { id: 'textSize', icon: 'ph-text-aa', label: 'Ukuran teks', desc: 'Perbesar teks di seluruh aplikasi.', type: 'select', options: [['normal', 'Normal'], ['large', 'Besar']], ...pref('textSize') },
-    { id: 'lang', icon: 'ph-translate', label: 'Bahasa', desc: 'Bahasa antarmuka.', type: 'select', proto: true, options: [['id', 'Indonesia'], ['en', 'English']], ...pref('lang') },
+    { id: 'lang', icon: 'ph-translate', label: 'Bahasa', desc: 'Bahasa antarmuka.', type: 'select', options: [['id', 'Indonesia'], ['en', 'English (beta)']], ...pref('lang') },
   ] },
   { group: 'Lainnya', items: [
     { id: 'b2b', icon: 'ph-chart-bar', label: 'Dashboard B2B (demo)', desc: 'Tampilan untuk kampus & perusahaan mitra.', type: 'link', value: () => '', action: "location.href='admin.html'" },
+    { id: 'refcode', icon: 'ph-gift', label: 'Kode ajakan', desc: 'Dari teman atau Campus Ambassador.', type: 'link', value: () => state.referredBy || 'Belum ada', action: 'openReferralCode()' },
     { id: 'logout', icon: 'ph-sign-out', label: 'Keluar', desc: 'Data tetap tersimpan di perangkat ini.', type: 'link', value: () => '', action: 'logout()' },
     { id: 'reset', icon: 'ph-trash', label: 'Hapus akun & data', desc: 'Menghapus semua data demo dari perangkat.', type: 'danger', value: () => '', action: 'resetDemo()' },
   ] },
@@ -57,6 +58,7 @@ function toggleSetting(id) {
 }
 function setSetting(id, value) {
   settingById(id).set(value);
+  if (id === 'lang') { persist(); return location.reload(); }
   afterSettingChange();
 }
 function afterSettingChange() {
@@ -103,10 +105,10 @@ const FEATURES = [
   { p: 'p1', area: 'Konsultasi', status: 'Diusulkan', title: 'Video call in-app & ruang tunggu',
     why: 'Saat ini sesi hanya terjadwal; pengguna perlu tempat aman untuk masuk sesi.',
     details: ['WebRTC terenkripsi, tanpa aplikasi pihak ketiga', 'Ruang tunggu 5 menit dengan latihan napas', 'Masuk ke kalender (Google/Outlook) & pengingat'] },
-  { p: 'p1', area: 'Monitoring', status: 'Diusulkan', title: 'Rekap mingguan & ekspor untuk psikolog',
+  { p: 'p1', area: 'Monitoring', status: 'Prototype', title: 'Rekap mingguan & ekspor untuk psikolog',
     why: 'Langkah 6 di user journey: perkembangan dipantau agar pemulihan berkelanjutan.',
     details: ['Ringkasan mood, pemicu, dan latihan setiap Minggu malam', 'Bagikan PDF ke psikolog dengan persetujuan (toggle sudah ada di Pengaturan)', 'Bandingkan skor Cek Diri dari waktu ke waktu'] },
-  { p: 'p1', area: 'Premium', status: 'Diusulkan', title: 'Jurnal refleksi AI',
+  { p: 'p1', area: 'Premium', status: 'Prototype', title: 'Jurnal refleksi AI',
     why: 'Fitur Premium di pitch deck yang belum ada di aplikasi.',
     details: ['Pertanyaan lanjutan dari catatan check-in', 'Ringkasan pola, bukan diagnosis — dengan disclaimer jelas', 'Opt-in, data tidak dipakai untuk melatih model'] },
   { p: 'p1', area: 'Kualitas', status: 'Diusulkan', title: 'Rating sesi & NPS',
@@ -115,13 +117,13 @@ const FEATURES = [
   { p: 'p1', area: 'B2B', status: 'Diusulkan', title: 'Laporan institusi yang benar-benar anonim',
     why: 'Kampus perlu insight, mahasiswa perlu yakin datanya aman.',
     details: ['Hanya agregat dengan minimal 10 orang per kelompok (k-anonymity)', 'Tidak ada isi chat atau jurnal yang dibagikan', 'Halaman transparansi untuk pengguna'] },
-  { p: 'p2', area: 'Retensi', status: 'Diusulkan', title: 'Program terstruktur 7 hari',
+  { p: 'p2', area: 'Retensi', status: 'Prototype', title: 'Program terstruktur 7 hari',
     why: 'Konten satuan mudah ditinggalkan; seri bertahap membangun kebiasaan.',
     details: ['Seri CBT ringan: pikiran, tubuh, relasi', 'Progres tersimpan dan bisa diulang', 'Pengingat sesuai jam yang dipilih'] },
-  { p: 'p2', area: 'Retensi', status: 'Diusulkan', title: 'Gamifikasi yang lembut',
+  { p: 'p2', area: 'Retensi', status: 'Prototype', title: 'Gamifikasi yang lembut',
     why: 'Timeline Q3 menyebut gamifikasi — tapi streak yang putus bisa bikin merasa gagal.',
     details: ['“Libur streak” 1x per minggu', 'Lencana tanpa papan peringkat', 'Bahasa apresiatif, bukan menghukum'] },
-  { p: 'p2', area: 'Pertumbuhan', status: 'Diusulkan', title: 'Referral & Campus Ambassador',
+  { p: 'p2', area: 'Pertumbuhan', status: 'Prototype', title: 'Referral & Campus Ambassador',
     why: 'Strategi pemasaran mengandalkan ambassador dan rujukan.',
     details: ['Kode undangan: teman dapat 7 hari Premium', 'Kode ambassador terlacak di Dashboard B2B', 'Tanpa membuka identitas pengguna yang diundang'] },
   { p: 'p2', area: 'Akses', status: 'Diusulkan', title: 'Konten offline & hemat data',
@@ -161,6 +163,8 @@ function renderStagePanel() {
         <span class="wordmark" role="img" aria-label="Ruang Pulih" style="width:110px;height:26px"></span>
         <div class="panel-tools">
           <a href="admin.html" title="Dashboard B2B" aria-label="Dashboard B2B"><i class="ph ph-chart-bar"></i></a>
+          <a href="psikolog.html" target="_blank" title="Portal Psikolog" aria-label="Portal Psikolog"><i class="ph ph-stethoscope"></i></a>
+          <a href="teman.html" target="_blank" title="Aplikasi Teman Pulih" aria-label="Aplikasi Teman Pulih"><i class="ph ph-hand-heart"></i></a>
           <button onclick="toggleTheme()" title="Ganti tema" aria-label="Ganti tema"><i class="ph ph-moon"></i></button>
           <button onclick="captureMockup()" title="Simpan mockup" aria-label="Simpan mockup"><i class="ph ph-camera"></i></button>
           <button onclick="resetDemo()" title="Reset demo" aria-label="Reset demo"><i class="ph ph-arrow-counter-clockwise"></i></button>

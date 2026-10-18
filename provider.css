@@ -1,0 +1,73 @@
+/* ===== Ruang Pulih — provider views (Portal Psikolog on admin.css, Teman Pulih on styles.css) ===== */
+
+.live-toggle { height: 40px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; background: var(--sunken); color: var(--ink-2); }
+.live-toggle.on { background: var(--forest-tint); color: var(--forest-deep); }
+.live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-3); display: inline-block; }
+.live-toggle.on .live-dot, .room-top .live-dot { background: #3FB56B; box-shadow: 0 0 0 4px rgba(63, 181, 107, .2); }
+
+/* availability grid */
+.avail { display: grid; grid-template-columns: 52px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; }
+.avail > b { text-align: center; font-size: 11.5px; color: var(--ink-2); }
+.slot { height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 11px; font-weight: 600; overflow: hidden; white-space: nowrap; }
+.slot.free { background: var(--forest-tint); }
+.slot.free:hover { box-shadow: inset 0 0 0 2px var(--forest); }
+.slot.off { background: var(--sunken); color: var(--ink-3); }
+.slot.booked { background: var(--series); color: var(--on-forest); }
+.slot-key { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.slot-key.free { background: var(--forest-tint); } .slot-key.off { background: var(--sunken); } .slot-key.booked { background: var(--series); }
+
+/* clients */
+.client-mood { display: flex; align-items: center; gap: 2px; margin: 12px 0 6px; min-height: 26px; flex-wrap: wrap; }
+.client-mood .tiny { margin-left: 6px; }
+
+/* chat */
+.chat-split { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+.thread { width: 100%; text-align: left; display: grid; gap: 2px; padding: 12px 14px; border-radius: 16px; position: relative; }
+.thread:hover { background: var(--sunken); }
+.thread.on { background: var(--forest-tint); }
+.thread .dot { position: absolute; right: 12px; top: 14px; width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
+.chat-pane { display: flex; flex-direction: column; min-height: 520px; }
+.psy-log { flex: 1; overflow-y: auto; max-height: 460px; display: flex; flex-direction: column; padding: 4px 2px; }
+.msg-sys { align-self: center; margin-top: 8px; padding: 5px 12px; border-radius: 999px; background: var(--amber-tint); font-size: 12px; }
+.chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chips-row .view-toggle.on { background: var(--forest); color: var(--on-forest); }
+.protocol { margin: 0 0 14px 18px; display: grid; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.protocol b { color: var(--ink); }
+@media (max-width: 900px) { .chat-split { grid-template-columns: 1fr; } .avail { grid-template-columns: 44px repeat(5, 1fr); } }
+
+/* session room */
+.room { position: fixed; inset: 0; z-index: 90; display: none; grid-template-columns: 1fr 360px; background: #121812; }
+.room.show { display: grid; }
+.room-main { display: flex; flex-direction: column; padding: 18px; gap: 14px; min-width: 0; }
+.room-top { display: flex; justify-content: space-between; align-items: center; color: #fff; }
+.room-top .tag { gap: 8px; }
+.room-video { position: relative; flex: 1; border-radius: 26px; background: radial-gradient(circle at 50% 40%, #2C3A30, #161D17); display: grid; place-items: center; overflow: hidden; }
+.room-client { display: grid; justify-items: center; gap: 8px; color: #fff; font-size: 18px; font-weight: 600; }
+.room-initial { width: 120px; height: 120px; border-radius: 40px; display: grid; place-items: center; font-family: var(--font-display); font-size: 48px; color: #1D2620; }
+.room-self { position: absolute; right: 18px; bottom: 18px; width: 150px; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: opacity .2s; }
+.room-self svg { width: 100%; height: 100%; display: block; }
+.room-controls { display: flex; justify-content: center; gap: 12px; }
+.room-controls button { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.12); color: #fff; font-size: 22px; transition: transform .15s, background .2s; }
+.room-controls button:hover { transform: translateY(-2px); background: rgba(255,255,255,.2); }
+.room-controls button.off { background: #C2410C; }
+.room-controls .end { width: auto; padding: 0 22px; border-radius: 999px; gap: 8px; display: inline-flex; align-items: center; background: #CF4F3B; font-size: 15px; font-weight: 600; }
+.room-side { background: var(--paper); color: var(--ink); padding: 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.set-label { margin-top: 14px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.soap { height: auto; padding: 10px 12px; resize: vertical; margin-bottom: 6px; font-size: 13.5px; }
+.notice-room { display: flex; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--amber-tint); font-size: 13px; margin-top: 8px; }
+@media (max-width: 900px) { .room { grid-template-columns: 1fr; overflow-y: auto; } .room-main { min-height: 70vh; } }
+
+/* ---------- Teman Pulih (mobile, on styles.css) ---------- */
+.stage.solo { grid-template-columns: minmax(200px, 300px) auto; }
+@media (max-width: 1400px) { .stage.solo .stage-aside { display: block; } }
+@media (max-width: 900px) { .stage.solo { grid-template-columns: auto; } .stage.solo .stage-aside { display: none; } }
+.tp-queue-item { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; }
+.tp-wait { font-size: 11.5px; font-weight: 700; color: #8A5B0E; background: var(--amber-tint); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.risk-flag { border: 1.5px solid var(--clay); background: color-mix(in srgb, var(--clay-tint) 50%, var(--surface)); border-radius: 20px; padding: 12px 14px; margin: 8px 0; }
+.risk-flag .h3 { color: var(--clay); display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.risk-flag ul { margin: 6px 0 0 18px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+.suggest-row { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px 0; scrollbar-width: none; }
+.suggest-row::-webkit-scrollbar { display: none; }
+.suggest-row .chip { height: 32px; font-size: 12.5px; white-space: nowrap; }
+.hours { display: flex; align-items: baseline; gap: 6px; }
+.hours b { font-family: var(--font-display); font-size: 34px; font-weight: 500; }

@@ -68,6 +68,32 @@ const state = {
 };
 try { document.documentElement.dataset.theme = localStorage.getItem('rp-admin-theme') || 'light'; } catch { /* storage blocked */ }
 
+// ---------- Link to the student app (same origin, demo only) ----------
+// The prototype app stores its state under 'rp2'. Decisions made here are written back so the
+// student sees them; a real build would do this through the backend, never the browser.
+const APP_KEY = 'rp2';
+const APP_ORG = 'BINUS University';
+function readApp() { try { return JSON.parse(localStorage.getItem(APP_KEY)) || null; } catch { return null; } }
+function writeApp(fn) { const a = readApp(); if (!a) return; fn(a); try { localStorage.setItem(APP_KEY, JSON.stringify(a)); } catch { /* storage blocked */ } }
+const appRequest = () => { const a = readApp(); return a?.verification?.status === 'pending' && a.verification.org === APP_ORG ? a : null; };
+const appCare = () => { const a = readApp(); return a?.org === APP_ORG && a.campusShare?.care && !state.appCareDone ? a : null; };
+const pendingCount = () => state.pendingTotal + (appRequest() ? 1 : 0);
+const appJoined = id => (readApp()?.eventsJoined || []).includes(id) ? 1 : 0;
+const appRatings = () => Object.values(readApp()?.ratings || {}).filter(r => r.done).length;
+function appCareRow() {
+  const a = appCare(); if (!a) return null;
+  const sh = a.campusShare;
+  const items = ['mood', 'check', 'sos'].filter(k => sh[k]);
+  const last = (a.moods || []).slice(-5);
+  const lastV = last[last.length - 1]?.v;
+  const sc = a.screening;
+  let signal = 'mood', detail = 'Baru bergabung di Program Pendampingan';
+  if (sh.check && sc && sc.score >= 6) { signal = 'check'; detail = `Cek Diri: ${sc.score >= 9 ? 'Berat' : 'Sedang'} (${sc.score}/12)`; }
+  else if (sh.mood && lastV && lastV <= 2) { detail = `Check-in terakhir: ${lastV === 1 ? 'Berat' : 'Kurang'}`; }
+  return { key: 'app', name: `${a.name} (akun demo)`, fac: 'Akun aplikasi demo', items, signal, detail, mood: sh.mood ? last.map(m => m.v) : null };
+}
+window.addEventListener('storage', e => { if (e.key === APP_KEY) render(); });
+
 // ---------- Tiny pebble (same shapes as the app) ----------
 const PEBBLE = [null,
   { d: 'M7 31c0-9 7-17 17-17s17 6 17 15c0 9-7 13-17 13S7 39 7 31z', eye: 28, mouth: 'M19 36q5-3.5 10 0' },
@@ -111,8 +137,8 @@ function renderNav() {
   document.getElementById('sideNav').innerHTML = PAGES.map(p => `
     <button class="${state.page === p.id ? 'on' : ''}" onclick="go('${p.id}')" aria-current="${state.page === p.id ? 'page' : 'false'}">
       <i class="${state.page === p.id ? 'ph-fill' : 'ph'} ph-${p.icon}"></i>${p.label}
-      ${p.id === 'pendampingan' && state.care.filter(c => !c.done).length ? `<span class="count" aria-label="perlu disapa">${state.care.filter(c => !c.done).length}</span>` : ''}
-      ${p.id === 'anggota' && state.pendingTotal ? `<span class="count" aria-label="${state.pendingTotal} menunggu verifikasi">${state.pendingTotal}</span>` : ''}
+      ${p.id === 'pendampingan' && careQueue().length ? `<span class="count" aria-label="perlu disapa">${careQueue().length}</span>` : ''}
+      ${p.id === 'anggota' && pendingCount() ? `<span class="count" aria-label="${pendingCount()} menunggu verifikasi">${pendingCount()}</span>` : ''}
     </button>`).join('');
 }
 function go(id) {
@@ -170,9 +196,11 @@ const CARE_LABEL = { mood: ['chart-line', 'Tren mood'], check: ['clipboard-text'
 const SIGNAL = { sos: ['s-serious', 'lifebuoy', 'Hubungi dalam 24 jam'], check: ['s-warn', 'warning', 'Sapa minggu ini'], mood: ['s-warn', 'trend-down', 'Sapa minggu ini'] };
 const miniMood = vals => `<svg viewBox="0 0 60 20" width="60" height="20" aria-hidden="true"><path d="${vals.map((v, i) => `${i ? 'L' : 'M'}${i * 15} ${18 - (v - 1) * 4}`).join('')}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
+const careQueue = () => [...(appCareRow() ? [appCareRow()] : []), ...state.care.map((c, i) => ({ ...c, key: i })).filter(c => !c.done)];
+
 const VIEWS = {
   pendampingan() {
-    const open = state.care.filter(c => !c.done);
+    const open = careQueue();
     return `
       <div class="privacy"><i class="ph-fill ph-identification-card"></i><span><b>Hanya untuk konselor berlisensi.</b> Daftar ini berisi mahasiswa yang memilih ikut Program Pendampingan, dan hanya data yang mereka izinkan. Setiap akses tercatat; izin bisa dicabut mahasiswa kapan saja.</span></div>
       <div class="grid g-3">
@@ -181,7 +209,7 @@ const VIEWS = {
         <div class="card kpi"><span class="kpi-label"><i class="ph ph-bell-ringing"></i>Perlu disapa</span><span class="kpi-value">${open.length}</span><span class="tiny">dari sinyal minggu ini</span></div>
       </div>
       <section class="card mt"><div class="card-h"><div><h3>Antrean pendampingan</h3><p>Diurutkan dari yang paling mendesak</p></div></div>
-        ${open.length ? open.map(c => { const [cls, ic, due] = SIGNAL[c.signal]; const i = state.care.indexOf(c); return `
+        ${open.length ? open.map(c => { const [cls, ic, due] = SIGNAL[c.signal]; const i = typeof c.key === 'number' ? c.key : `'app'`; return `
           <div class="row list-row care-row">
             <span class="signal ${cls}" style="padding:0"><span class="s-ic"><i class="ph-fill ph-${ic}"></i></span></span>
             <div class="grow"><b>${c.name}</b> <span class="tiny">· ${c.fac}</span>
@@ -273,7 +301,7 @@ const VIEWS = {
           <div class="quota" role="progressbar" aria-valuenow="${used}" aria-valuemax="${quota}" aria-label="Pemakaian kuota"><span style="width:${used / quota * 100}%"></span></div>
           <span class="tiny">${Math.round(used / quota * 100)}% terpakai · reset 1 Nov</span></div>
         ${kpi('timer', 'Waktu tunggu', '2m 14s', -12, 'wait', true, 'target < 3 mnt')}
-        <div class="card kpi"><span class="kpi-label"><i class="ph ph-star"></i>Kepuasan sesi</span><span class="kpi-value">4,8<small>/ 5</small></span><span class="tiny">dari 210 penilaian</span></div>
+        <div class="card kpi"><span class="kpi-label"><i class="ph ph-star"></i>Kepuasan sesi</span><span class="kpi-value">4,8<small>/ 5</small></span><span class="tiny">dari ${210 + appRatings()} penilaian</span></div>
         <div class="card kpi"><span class="kpi-label"><i class="ph ph-seal-check"></i>Teman Pulih aktif</span><span class="kpi-value">24</span><span class="tiny">mahasiswa psikologi tersertifikasi</span></div>
       </div>
       <div class="grid g-21 mt">
@@ -298,7 +326,7 @@ const VIEWS = {
         <div class="card kpi"><span class="kpi-label"><i class="ph ph-identification-badge"></i>Terverifikasi</span><span class="kpi-value">2.310<small>/ 2.500 kursi</small></span>
           <div class="quota"><span style="width:92.4%"></span></div></div>
         ${kpi('users-three', 'Aktif 30 hari', '1.842', 14, 'active', false, '80% dari terverifikasi')}
-        <div class="card kpi"><span class="kpi-label"><i class="ph ph-hourglass-medium"></i>Menunggu verifikasi</span><span class="kpi-value">${state.pendingTotal}</span><span class="tiny">rata-rata diproses < 1 hari</span></div>
+        <div class="card kpi"><span class="kpi-label"><i class="ph ph-hourglass-medium"></i>Menunggu verifikasi</span><span class="kpi-value">${pendingCount()}</span><span class="tiny">rata-rata diproses < 1 hari</span></div>
       </div>
       <div class="grid g-2 mt">
         <section class="card"><div class="card-h"><div><h3>Masuk otomatis (SSO)</h3><p>Mahasiswa dengan domain ini langsung terverifikasi</p></div><span class="tag tag-forest"><i class="ph-fill ph-check-circle"></i>Terhubung</span></div>
@@ -311,8 +339,12 @@ const VIEWS = {
           <tbody>${state.codes.map(([c, q, u, e]) => `<tr><td class="code">${c}</td><td class="num">${u} / ${q}</td><td class="num">${e}</td><td class="num"><button class="view-toggle" onclick="copyCode('${c}')"><i class="ph ph-copy"></i>Salin</button></td></tr>`).join('')}</tbody></table>
         </section>
       </div>
-      <section class="card mt"><div class="card-h"><div><h3>Permintaan verifikasi</h3><p>Email disamarkan. Menampilkan ${state.pending.length} dari ${state.pendingTotal}.</p></div>
+      <section class="card mt"><div class="card-h"><div><h3>Permintaan verifikasi</h3><p>Email disamarkan. Menampilkan ${state.pending.length + (appRequest() ? 1 : 0)} dari ${pendingCount()}.</p></div>
         <button class="btn btn-ghost btn-sm" onclick="toast('Unggah CSV daftar mahasiswa (simulasi)','ph-upload-simple')"><i class="ph ph-upload-simple"></i>Unggah CSV</button></div>
+        ${appRequest() ? (() => { const a = appRequest(); return `
+          <div class="row list-row app-req"><span class="av" style="background:var(--amber-tint)"><i class="ph ph-device-mobile" style="font-size:18px;color:#8A5B0E"></i></span>
+            <div class="grow"><b class="code">${esc(a.account?.id || 'akun aplikasi')}</b> <span class="tag tag-forest">Baru · dari aplikasi demo</span><p class="tiny">${esc(a.verification.via)} · ${esc(a.name)}</p></div>
+            <button class="btn btn-ghost btn-sm" onclick="decideApp(false)">Tolak</button><button class="btn btn-primary btn-sm" onclick="decideApp(true)">Setujui</button></div>`; })() : ''}
         ${state.pending.length ? state.pending.map(([e, s], i) => `
           <div class="row list-row"><span class="av" style="background:var(--sunken)"><i class="ph ph-user" style="font-size:18px;color:var(--ink-3)"></i></span>
             <div class="grow"><b class="code">${e}</b><p class="tiny">${s}</p></div>
@@ -323,14 +355,14 @@ const VIEWS = {
 
   program() {
     const upcoming = [
-      ['12', 'NOV', 'Webinar: Mengelola stres jelang UAS', 'Online · 14.00–15.30 WIB', '312 terdaftar', 'Direkomendasikan dari sinyal Cek Diri'],
-      ['18', 'NOV', 'Pelatihan Teman Pulih batch 4', 'Kampus Anggrek · 3 hari (20 jam)', '42 pendaftar', 'Sertifikasi HIMPSI'],
+      ['12', 'NOV', 'Webinar: Mengelola stres jelang UAS', 'Online · 14.00–15.30 WIB', `${nf(312 + appJoined('ev-uas'))} terdaftar`, 'Direkomendasikan dari sinyal Cek Diri'],
+      ['18', 'NOV', 'Pelatihan Teman Pulih batch 4', 'Kampus Anggrek · 3 hari (20 jam)', `${42 + appJoined('ev-tp')} pendaftar`, 'Sertifikasi HIMPSI'],
       ['05', 'DES', 'Roadshow #SehatMentalBukanAib', 'Auditorium Kampus Anggrek', '— buka 15 Nov', ''],
     ];
     return `
       <div class="filters"><span class="spacer"></span><button class="btn btn-primary" onclick="openEventRequest()"><i class="ph ph-calendar-plus"></i>Ajukan program</button></div>
       <div class="grid g-21">
-        <section class="card"><div class="card-h"><div><h3>Akan datang</h3><p>Dikelola bersama account manager Ruang Pulih</p></div></div>
+        <section class="card"><div class="card-h"><div><h3>Akan datang</h3><p>Hanya jumlah pendaftar · nama tidak dibagikan kecuali mahasiswa memilih menerima sertifikat</p></div></div>
           ${upcoming.map(([d, m, t, w, r, n]) => `<div class="row list-row"><span class="event-date"><b>${d}</b><span>${m}</span></span>
             <div class="grow"><b>${t}</b><p class="tiny">${w}${n ? ` · <span style="color:var(--forest)">${n}</span>` : ''}</p></div><span class="tag">${r}</span></div>`).join('')}
         </section>
@@ -339,6 +371,12 @@ const VIEWS = {
           <div class="signal s-good"><span class="s-ic"><i class="ph-fill ph-briefcase"></i></span><div><b>Sesi transisi karir</b><p>Karir naik jadi pemicu #4 di mahasiswa tingkat akhir.</p></div></div>
         </section>
       </div>
+      <section class="card mt"><div class="card-h"><div><h3>Campus Ambassador</h3><p>Jumlah pendaftar lewat kode ajakan · siapa yang diajak tidak pernah ditampilkan</p></div><button class="btn btn-ghost btn-sm" onclick="toast('Kode ambassador baru dibuat (simulasi)','ph-plus')"><i class="ph ph-plus"></i>Kode baru</button></div>
+        <table class="table"><thead><tr><th>Ambassador</th><th>Kode</th><th class="num">Pendaftar</th><th class="num">Aktif 30 hari</th></tr></thead>
+        <tbody>${[['Raka · Psikologi', 'AMB-RAKA', 34, 27], ['Sekar · Psikologi', 'AMB-SEKAR', 21, 18], ['Nadia · DKV', 'AMB-NADIA', 17, 12]].map(([n, c, j, a]) => {
+          const extra = (readApp()?.referredBy || '') === c ? 1 : 0;
+          return `<tr><td>${n}</td><td class="code">${c}</td><td class="num">${j + extra}${extra ? ' <span class="tag tag-forest">+1 demo</span>' : ''}</td><td class="num">${a + extra}</td></tr>`; }).join('')}</tbody></table>
+      </section>
       <section class="card mt"><div class="card-h"><div><h3>Sudah berlangsung</h3><p>Dampak diukur dari perubahan agregat setelah acara</p></div></div>
         <table class="table"><thead><tr><th>Program</th><th class="num">Hadir</th><th class="num">Nilai</th><th class="num">Check-in minggu berikutnya</th></tr></thead>
         <tbody><tr><td>Talkshow #SehatMentalBukanAib · 2 Okt</td><td class="num">486</td><td class="num">4,7</td><td class="num">${delta(18)}</td></tr>
@@ -410,18 +448,43 @@ function newCode() {
   state.codes.unshift([code, 100, 0, '31 Des 2026']);
   render(); copyCode(code);
 }
-function markCared(i) { state.care[i].done = true; render(); toast(`${state.care[i].name} ditandai sudah disapa`, 'ph-check-circle'); }
+function markCared(i) {
+  const name = i === 'app' ? appCareRow()?.name : state.care[i].name;
+  if (i === 'app') state.appCareDone = true; else state.care[i].done = true;
+  render(); toast(`${name} ditandai sudah disapa`, 'ph-check-circle');
+}
+function sendCare(i) {
+  const msg = document.getElementById('careMsg').value.trim();
+  const name = i === 'app' ? appCareRow()?.name : state.care[i].name;
+  if (i === 'app') writeApp(a => {
+    a.chats ||= {};
+    const ch = a.chats.sac ||= { unread: true, messages: [{ from: 'sys', text: `Program Pendampingan ${a.org} · izin diberikan ${a.campusShare?.at ? new Date(a.campusShare.at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }) : ''}` }] };
+    ch.messages.push({ from: 'them', text: msg, t: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.') });
+    ch.unread = true;
+  });
+  closeDrawer(); markCared(i);
+  toast(`Pesan terkirim ke ${name}`, 'ph-paper-plane-tilt');
+}
 function openCareContact(i) {
-  const c = state.care[i];
+  const c = i === 'app' ? appCareRow() : state.care[i];
   openDrawer(`Sapa ${esc(c.name)}`, `
     <p class="muted" style="font-size:14px">Pesan dikirim lewat Ruang Pulih atas nama konselor ${'BINUS'}. Mahasiswa bisa membalas atau menolak dengan sopan.</p>
     <label class="tiny" style="display:block;margin:16px 0 6px">Pesan</label>
-    <textarea class="field" rows="5" style="height:auto;padding:12px 14px">Hai ${esc(c.name.split(' ')[0])}, aku dari tim konseling kampus. Kami melihat minggu ini mungkin terasa berat. Kalau mau, kita bisa ngobrol sebentar — kapan pun kamu siap.</textarea>
+    <textarea class="field" id="careMsg" rows="5" style="height:auto;padding:12px 14px">Hai ${esc(c.name.split(' ')[0])}, aku dari tim konseling kampus. Kami melihat minggu ini mungkin terasa berat. Kalau mau, kita bisa ngobrol sebentar — kapan pun kamu siap.</textarea>
     <label class="tiny" style="display:block;margin:16px 0 6px">Tawarkan jadwal</label>
     <div class="seg"><button class="on" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">Hari ini</button><button onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">Besok</button><button onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">Biar mahasiswa pilih</button></div>`,
-    `<div class="drawer-f"><button class="btn btn-ghost" onclick="closeDrawer()">Batal</button><button class="btn btn-primary" style="flex:1;justify-content:center" onclick="closeDrawer();markCared(${i});toast('Pesan terkirim ke ${esc(c.name)}','ph-paper-plane-tilt')">Kirim</button></div>`);
+    `<div class="drawer-f"><button class="btn btn-ghost" onclick="closeDrawer()">Batal</button><button class="btn btn-primary" style="flex:1;justify-content:center" onclick="sendCare(${i === 'app' ? "'app'" : i})">Kirim</button></div>`);
 }
 function copyCode(c) { navigator.clipboard?.writeText(c).catch(() => {}); toast(`Kode ${c} disalin`, 'ph-copy'); }
+function decideApp(ok) {
+  writeApp(a => {
+    a.verification.status = ok ? 'approved' : 'rejected';
+    a.verification.seen = false;
+    a.verification.reason = ok ? undefined : 'Kode tidak cocok dengan data mahasiswa aktif BINUS. Coba masuk dengan email kampus.';
+    if (ok) { a.org = a.verification.org; a.campusShare = null; }
+  });
+  render(); toast(ok ? 'Akses disetujui · mahasiswa diberi tahu di aplikasi' : 'Permintaan ditolak · mahasiswa diberi tahu', ok ? 'ph-check-circle' : 'ph-x-circle');
+}
 function decide(i, ok) {
   state.pending.splice(i, 1); state.pendingTotal--;
   render(); toast(ok ? 'Akses disetujui' : 'Permintaan ditolak', ok ? 'ph-check-circle' : 'ph-x-circle');

@@ -46,10 +46,16 @@ const PROVIDERS = [
     bio: 'Spesialis dinamika keluarga, ekspektasi orang tua, dan transisi menuju dewasa.' },
   { id: 'rudi', type: 'psy', name: 'Rudi Hermawan, M.Psi.', short: 'Rudi', initials: 'RH', c: 'var(--m5)', specialty: 'Karir & burnout', cat: 'Karir', rating: 4.7, reviews: 80, years: 7, price: 150000, online: true,
     bio: 'Membantu fresh graduate dan pekerja muda mengatasi burnout, quarter-life crisis, dan perencanaan karir yang sehat.' },
+  { id: 'sac', type: 'counsel', name: 'Konselor kampus', short: 'Konselor', initials: 'SAC', c: 'var(--m5)', online: true, role: 'Student Advisory Center' },
 ];
 const provider = id => PROVIDERS.find(p => p.id === id);
 
 const REPLIES = {
+  counsel: [
+    'Terima kasih sudah membalas. Mau kita jadwalkan ngobrol 30 menit minggu ini? Kamu yang pilih waktunya.',
+    'Aku di sini. Tidak perlu buru-buru — ceritakan saja yang ingin kamu ceritakan.',
+    'Kalau kamu lebih nyaman dengan psikolog Ruang Pulih, aku bisa bantu pilihkan juga.',
+  ],
   peer: [
     'Makasih sudah cerita. Aku dengerin kok — pelan-pelan aja.',
     'Wajar banget kalau kamu merasa begitu. Boleh ceritain bagian yang paling berat buatmu?',
@@ -203,9 +209,17 @@ const shapeFor = id => 2 + [...id].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 
 // ---------- Derived ----------
 const moodOn = key => state.moods.find(m => m.date === key);
 const todayMood = () => moodOn(dayKey());
+// One missed day per calendar week counts as a rest day and doesn't break the streak.
 function streak() {
-  let n = 0;
-  for (let i = todayMood() ? 0 : -1; moodOn(dayKey(i)); i--) n++;
+  let n = 0, i = todayMood() ? 0 : -1;
+  const rested = new Set();
+  const weekOf = off => { const d = keyToDate(dayKey(off)); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d.toDateString(); };
+  for (;;) {
+    if (moodOn(dayKey(i))) { n++; i--; continue; }
+    if (n > 0 && !rested.has(weekOf(i)) && moodOn(dayKey(i - 1))) { rested.add(weekOf(i)); i--; continue; }
+    break;
+  }
+  ui.restDays = rested.size;
   return n;
 }
 const unreadCount = () => Object.values(state.chats).filter(c => c.unread).length;
@@ -234,7 +248,7 @@ function renderTopbar() {
   // The wordmark is the one constant in the header; tab names live in each page's own heading.
   document.getElementById('topbarTitle').innerHTML =
     `<button class="brand" onclick="go('home')" aria-label="Ruang Pulih, ke Beranda"><span class="wordmark"></span></button>`;
-  document.getElementById('notifDot').style.display = state.notifSeen ? 'none' : '';
+  document.getElementById('notifDot').style.display = unreadNotifs() ? '' : 'none';
   const pill = document.getElementById('premiumPill');
   pill.classList.toggle('active', state.premium);
   pill.innerHTML = state.premium
@@ -260,7 +274,12 @@ function go(tab, opts = {}) {
   renderStagePanel();
   if (!opts.keepScroll) document.getElementById('scroll').scrollTop = 0;
 }
-const rerender = () => { RENDER[ui.tab](); renderNav(); renderTopbar(); renderStagePanel(); if (ui.sheetKind === 'settings') openSettings(); };
+const rerender = () => {
+  const sc = document.getElementById('scroll'), top = sc.scrollTop;
+  RENDER[ui.tab](); renderNav(); renderTopbar(); renderStagePanel();
+  sc.scrollTop = top;
+  if (ui.sheetKind === 'settings') openSettings();
+};
 
 // ---------- Beranda ----------
 function renderHome() {
@@ -276,11 +295,16 @@ function renderHome() {
       ${ILLO.daytime()}
     </div>
 
+    ${state.verification && !(state.verification.status !== 'pending' && state.verification.seen) ? `<div class="mt-16">${verificationCard()}</div>` : ''}
+    ${careNudgeCard()}
+
     <div class="card mt-20" id="checkin">${tm && !ui.editingMood ? checkinDone(tm) : checkinPicker()}</div>
 
     ${tm && !ui.editingMood ? suggestion(tm.v) : ''}
 
-    ${nextSessionCard()}
+    ${sessionCard()}
+    ${homeworkCard()}
+    ${programCard(true)}
 
     <div class="section">
       ${toolsSection()}
@@ -305,6 +329,7 @@ const toolWeek = key => toolUses(key).filter(d => d >= mondayKey()).length;
 function logTool(key) {
   (state.toolLog[key] ||= []).push(dayKey());
   persist();
+  onToolLogged(key);
   if (ui.tab === 'home') renderHome();
 }
 function recommendedTool() {
@@ -329,6 +354,7 @@ function toolsSection() {
       <button class="tool-card ${t.key === rec ? 'rec' : ''}" style="--tc:${t.c}" onclick="${t.open}" aria-label="${t.title}, ${t.sub}">
         ${t.key === rec ? `<span class="tool-badge"><i class="ph-fill ph-sparkle"></i>Untukmu</span>` : ''}
         ${done ? '<span class="tool-done" title="Sudah hari ini"><i class="ph ph-check"></i></span>' : ''}
+        ${t.premium && !state.premium ? '<span class="tool-done tool-lock" title="Premium"><i class="ph-fill ph-crown-simple"></i></span>' : ''}
         <span class="tool-art">${TOOL_ART[t.art]()}</span>
         <span class="tool-meta">
           <b>${t.title}</b>
@@ -459,7 +485,13 @@ function saveMood() {
   state.moods.push({ date: dayKey(), v: d.v, tags: [...d.tags], note: d.note.trim() });
   ui.draft = null; ui.editingMood = false;
   persist();
+  if (careNudgeReason() && state.lastNudgeNotif !== dayKey()) {
+    state.lastNudgeNotif = dayKey();
+    notify('Beberapa hari ini terasa berat. Teman Pulih dan psikolog siap menemanimu.', 'ph-heart', 'clay', "closeSheet();go('home')");
+  }
+  checkBadges();
   renderHome();
+  progEvent('checkin');
   toast('Check-in tersimpan', 'ph-check-circle');
 }
 function editMood() {
@@ -718,13 +750,8 @@ function renderSupport() {
   const list = PROVIDERS.filter(p => p.type === ui.supportTab && (ui.supportTab === 'peer' || ui.psyCat === 'Semua' || p.cat === ui.psyCat));
   document.getElementById('screen-support').innerHTML = `
     ${pageTitle('support')}
-    ${state.org
-      ? `<div class="card card-forest row"><i class="ph-fill ph-buildings" style="font-size:24px"></i><div class="grow"><p class="h3">Gratis lewat ${esc(state.org)}</p><p class="muted" style="font-size:13px">Teman Pulih & psikolog tanpa biaya.</p></div></div>`
-      : `<button class="card row" style="width:100%;text-align:left" onclick="openAffiliation()">
-          <span class="li-ic" style="width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--amber-tint);color:#8A5B0E;font-size:20px"><i class="ph ph-buildings"></i></span>
-          <div class="grow"><p class="h3" style="font-size:15px">Kampus atau kantormu mitra?</p><p class="tiny">Tautkan akun untuk konsultasi gratis.</p></div>
-          <i class="ph ph-caret-right" style="color:var(--ink-3)"></i>
-        </button>`}
+    ${campusPlanCard()}
+    ${sessionCard()}
 
     ${chats.length ? `
       <div class="section">
@@ -733,7 +760,7 @@ function renderSupport() {
           const p = provider(pid); const last = c.messages[c.messages.length - 1];
           return `<button class="thread-row" onclick="openChat('${pid}')">
             ${avatarHTML(p, 'sm')}
-            <div class="grow"><p class="h3" style="font-size:14px">${esc(p.type === 'peer' ? p.name + ' · Teman Pulih' : p.name)}</p><p class="tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(last.text)}</p></div>
+            <div class="grow"><p class="h3" style="font-size:14px">${esc(p.type === 'peer' ? p.name + ' · Teman Pulih' : p.type === 'counsel' ? `${p.name} · ${state.org || 'kampus'}` : p.name)}</p><p class="tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(last.text)}</p></div>
             ${c.unread ? '<span class="unread-dot" aria-label="Belum dibaca"></span>' : ''}
           </button>`;
         }).join('')}</div>
@@ -784,6 +811,7 @@ function psyCard(p) {
       </div>
       <div style="text-align:right">
         <p class="price">${price ? rupiah(price) : `<s>${rupiah(p.price)}</s>Gratis`}</p>
+        ${price && state.verification?.status === 'pending' ? '<p class="tiny" style="color:var(--forest)">Gratis setelah verifikasi</p>' : ''}
         <p class="tiny">/sesi</p>
       </div>
     </button>`;
@@ -806,7 +834,8 @@ function openPsychologist(id, day = 'Besok', time = null) {
   const p = provider(id);
   const price = priceFor(p);
   const slots = ['09.00', '11.00', '13.00', '15.00', '19.00', '20.00'];
-  const taken = day === 'Hari ini' ? ['09.00', '11.00', '13.00'] : ['15.00'];
+  const blocked = (() => { try { return JSON.parse(localStorage.getItem('rp-psy-blocked'))?.[id]?.[dayKey(day === 'Hari ini' ? 0 : 1)] || []; } catch { return []; } })();
+  const taken = [...(day === 'Hari ini' ? ['09.00', '11.00', '13.00'] : ['15.00']), ...blocked];
   openSheet({
     title: '<span></span>',
     body: `
@@ -856,7 +885,8 @@ function openPayment(id, day, time) {
 
 function confirmBooking(id, day, time) {
   const p = provider(id);
-  state.bookings.push({ pid: id, day, time });
+  state.bookings.push({ pid: id, day, time, date: dayKey(day === 'Hari ini' ? 0 : 1) });
+  notify(`Sesi dengan ${p.short} terjadwal ${day.toLowerCase()} pukul ${time}.`, 'ph-calendar-check', 'forest', `openChat('${id}')`);
   const chat = state.chats[id] ||= { unread: false, messages: [] };
   chat.messages.push(
     { from: 'sys', text: `Sesi dijadwalkan · ${day}, ${time}` },
@@ -871,6 +901,7 @@ function confirmBooking(id, day, time) {
 
 // ---------- Chat ----------
 function openChat(id) {
+  ui.chatOpen = id;
   const p = provider(id);
   const chat = state.chats[id];
   chat.unread = false; persist(); renderNav();
@@ -882,7 +913,7 @@ function openChat(id) {
         <div class="sheet-head" style="border-bottom:1px solid var(--line);padding-bottom:12px">
           <button class="close-btn" onclick="closeSheet()" aria-label="Kembali"><i class="ph ph-caret-left"></i></button>
           ${avatarHTML(p, 'sm')}
-          <div class="grow"><p class="h3" style="font-size:15px">${esc(p.type === 'peer' ? p.name : p.name)}</p><p class="tiny">${p.type === 'peer' ? 'Teman Pulih' : 'Psikolog'} · ${p.online ? 'online' : 'membalas dalam beberapa jam'}</p></div>
+          <div class="grow"><p class="h3" style="font-size:15px">${esc(p.type === 'peer' ? p.name : p.name)}</p><p class="tiny">${p.type === 'peer' ? 'Teman Pulih' : p.type === 'counsel' ? `${esc(state.org || 'Kampus')} · Program Pendampingan` : 'Psikolog'} · ${p.online ? 'online' : 'membalas dalam beberapa jam'}</p></div>
           <button class="icon-btn" style="box-shadow:none;background:var(--sunken)" onclick="toast('Panggilan video tersedia saat sesi dimulai','ph-video-camera')" aria-label="Video"><i class="ph ph-video-camera"></i></button>
         </div>
         <div class="chat-log" id="chatLog"></div>
@@ -899,6 +930,7 @@ function renderChatLog(id, typing = false) {
   log.innerHTML = state.chats[id].messages.map(m => m.from === 'sys'
     ? `<div class="bubble sys">${esc(m.text)}</div>`
     : `<div class="bubble ${m.from}">${esc(m.text)}${m.t ? `<time>${m.t}</time>` : ''}</div>`).join('')
+    + ratingCard(id)
     + (typing ? '<div class="typing">sedang mengetik…</div>' : '');
   log.scrollTop = log.scrollHeight;
 }
@@ -907,13 +939,21 @@ function sendChat(id) {
   const text = input.value.trim(); if (!text) return;
   const chat = state.chats[id];
   chat.messages.push({ from: 'me', text, t: nowTime() });
-  input.value = ''; persist(); renderChatLog(id, true);
+  input.value = ''; persist();
+  // A real provider is online in their portal (demo): let them answer instead of the simulated reply.
+  if (providerLive(id)) { renderChatLog(id); return; }
+  renderChatLog(id, true);
   const pool = REPLIES[provider(id).type];
   setTimeout(() => {
     chat.messages.push({ from: 'them', text: pool[chat.messages.length % pool.length], t: nowTime() });
     persist();
     if (document.getElementById('chatLog')) renderChatLog(id); else { chat.unread = true; persist(); renderNav(); }
   }, 1600);
+}
+
+// Provider portals (psikolog.html / teman.html) mark themselves live in localStorage while open.
+function providerLive(id) {
+  try { const t = JSON.parse(localStorage.getItem('rp-live'))?.[id]; return t && Date.now() - t < 45000; } catch { return false; }
 }
 
 // ---------- Belajar ----------
@@ -927,6 +967,10 @@ function renderLearn() {
       <p style="font-size:14px;margin-top:6px;opacity:.8">${feat.kicker} · ${feat.mins} menit</p>
       ${ILLO.untangle()}
     </button>
+
+    ${programCard()}
+    ${learnVideosSection()}
+    ${learnInteractiveSection()}
 
     <div class="section">
       <div class="section-head"><h3 class="h2">Latihan</h3></div>
@@ -943,13 +987,15 @@ function renderLearn() {
       <div class="stack-8">${ARTICLES.map(articleRow).join('')}</div>
     </div>
 
+    ${campusEventsSection()}
+
     <div class="section">
       <div class="card card-forest banner">
         ${ILLO.together()}
         <span class="tag" style="background:rgba(255,255,255,.16);color:inherit"><i class="ph-fill ph-seal-check"></i>Program HIMPSI</span>
         <h3 class="h2 mt-12">Jadi Teman Pulih</h3>
         <p class="muted mt-8" style="font-size:14px">Mahasiswa psikologi? Ikuti pelatihan 20 jam, dapatkan sertifikat, dan dampingi teman sebaya.</p>
-        <button class="btn btn-amber btn-sm mt-16" onclick="toast('Pendaftaran batch berikutnya dibuka Januari','ph-calendar')">Daftar minat</button>
+        <button class="btn btn-amber btn-sm mt-16" ${state.org ? `data-ev="ev-tp" data-idle="Daftar batch 4"` : ''} onclick="${state.org ? `toggleEvent('ev-tp')` : `toast('Pendaftaran batch berikutnya dibuka Januari','ph-calendar')`}">${state.eventsJoined?.includes('ev-tp') ? 'Terdaftar ✓' : state.org ? 'Daftar batch 4' : 'Daftar minat'}</button>
       </div>
     </div>`;
 }
@@ -971,6 +1017,7 @@ function openArticle(id) {
       <p class="tiny mt-16">${a.kicker} · ${a.mins} menit</p>
       <h2 class="display" style="font-size:28px;margin-top:6px">${a.title}</h2>
       <div class="article mt-12">${a.body}</div>
+      ${articleCheckHTML(a.id)}
       <div class="card card-sunken mt-20 row"><i class="ph ph-chats-circle" style="font-size:22px;color:var(--forest)"></i><p class="grow" style="font-size:14px">Ada yang ingin didiskusikan?</p><button class="btn btn-primary btn-sm" onclick="closeSheet();go('support')">Cari dukungan</button></div>`,
   });
 }
@@ -986,6 +1033,7 @@ function renderMe() {
   const notes = [
     ...state.moods.filter(m => m.note).map(m => ({ date: m.date, text: m.note, icon: 'ph-note-pencil' })),
     ...state.gratitude.map(g => ({ date: g.date, text: g.items.join(' · '), icon: 'ph-plant' })),
+    ...(state.worksheets || []).map(w => ({ date: w.date, text: w.text, icon: w.icon || 'ph-notepad' })),
   ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   const fmt = k => { const d = keyToDate(k); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
 
@@ -1022,6 +1070,8 @@ function renderMe() {
       ${topLow ? `<p class="safe-note mt-12" style="background:var(--amber-tint)"><i class="ph ph-lightbulb" style="color:#8A5B0E"></i><span>Hari yang berat paling sering terkait <b>${topLow[0]}</b>.</span></p>` : ''}
     </div>
 
+    ${recapCard()}
+
     ${state.screening ? `
       <button class="card row mt-12" style="width:100%;text-align:left" onclick="openSelfCheck()">
         <span class="li-ic" style="width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:var(--forest-tint);color:var(--forest);font-size:20px"><i class="ph ph-clipboard-text"></i></span>
@@ -1035,6 +1085,9 @@ function renderMe() {
         <div class="list-item"><span class="li-ic"><i class="ph ${n.icon}"></i></span><div class="grow"><p style="font-size:14px">${esc(n.text)}</p><p class="tiny">${fmt(n.date)}</p></div></div>`).join('')}</div>`
         : `<div class="card card-sunken empty">${ILLO.notes()}Catatan dari check-in dan jurnal syukur akan muncul di sini.</div>`}
     </div>
+
+    ${badgesSection()}
+    ${referralCard()}
 
     <p class="tiny mt-20" style="text-align:center">Ruang Pulih · prototype v3</p>`;
 }
@@ -1149,7 +1202,13 @@ function openAffiliation() {
       <p class="muted" style="font-size:14px">Masukkan email kampus atau kantor. Institusimu tidak bisa melihat isi percakapanmu.</p>
       <input class="field mt-12" id="orgEmail" type="email" inputmode="email" placeholder="nama@binus.ac.id">
       <p class="tiny mt-8" id="orgMsg">Kampus mitra: BINUS, ITB, UNPAD, UPI, Telkom University.</p>
-      <button class="btn btn-primary btn-block mt-16" onclick="verifyOrg()">Verifikasi</button>`,
+      <button class="btn btn-primary btn-block mt-16" onclick="verifyOrg()">Verifikasi</button>
+      <div class="or" style="margin:22px 0 14px">atau</div>
+      <p class="h3" style="font-size:15px">Punya kode undangan?</p>
+      <p class="tiny mt-8">Untuk dosen, staf, atau mahasiswa tanpa email kampus. Admin kampus akan meninjau permintaanmu.</p>
+      <input class="field mt-12 code-field" id="inviteCode" placeholder="BINUS-XXXXX" autocapitalize="characters" onkeydown="if(event.key==='Enter')submitInviteCode()">
+      <p class="tiny mt-8" id="codeMsg"></p>
+      <button class="btn btn-ghost btn-block mt-8" onclick="submitInviteCode()">Kirim untuk diverifikasi</button>`,
   });
 }
 function verifyOrg() {
@@ -1363,19 +1422,6 @@ function openSOS() {
   });
 }
 
-function openNotifications() {
-  state.notifSeen = true; persist(); renderTopbar();
-  const items = [
-    ['ph-hand-heart', 'var(--clay-tint)', 'var(--clay)', '12 orang memeluk cerita di Lingkar Pulih yang kamu ikuti.', '2 j'],
-    ['ph-chat-circle', 'var(--forest-tint)', 'var(--forest)', 'Dr. Dian mengirim pesan untukmu.', '5 j'],
-    ['ph-sun', 'var(--amber-tint)', '#8A5B0E', 'Sudah check-in hari ini? Cukup 10 detik.', '8 j'],
-  ];
-  openSheet({
-    title: '<h2 class="h2">Notifikasi</h2>',
-    body: `<div class="list">${items.map(([i, bg, fg, t, a]) => `
-      <div class="list-item"><span class="li-ic" style="background:${bg};color:${fg}"><i class="ph ${i}"></i></span><div class="grow"><p style="font-size:14px">${t}</p><p class="tiny">${a} lalu</p></div></div>`).join('')}</div>`,
-  });
-}
 
 // ---------- Sheet system ----------
 let sheetOnClose = null;
@@ -1389,7 +1435,9 @@ function openSheet({ title = '', body = '', raw = null, full = false, onClose = 
     <div class="sheet-head">${title}${hideClose ? '' : '<button class="close-btn" onclick="closeSheet()" aria-label="Tutup"><i class="ph ph-x"></i></button>'}</div>
     <div class="sheet-body">${body}</div>`;
   sheetOnClose = onClose;
+  const token = ui.sheetToken = {};
   requestAnimationFrame(() => {
+    if (ui.sheetToken !== token) return; // closed before it finished opening
     sheet.classList.add('show');
     document.getElementById('scrim').classList.add('show');
   });
@@ -1397,6 +1445,8 @@ function openSheet({ title = '', body = '', raw = null, full = false, onClose = 
 function closeSheet() {
   if (sheetOnClose) { const fn = sheetOnClose; sheetOnClose = null; fn(); }
   ui.sheetKind = null;
+  ui.sheetToken = null;
+  ui.chatOpen = null;
   document.getElementById('sheet').classList.remove('show');
   document.getElementById('scrim').classList.remove('show');
 }

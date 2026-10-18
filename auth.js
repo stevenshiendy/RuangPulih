@@ -190,7 +190,9 @@ const AUTH_STEPS = {
       <input class="field" id="profName" maxlength="24" placeholder="Boleh nama samaran" value="${esc(name)}" data-autofocus>
       <label class="label">Apa yang ingin kamu fokuskan? <span class="tiny">(opsional)</span></label>
       <div class="chips wrap" id="focusChips">${FOCUS.map(f => `<button class="chip" onclick="this.classList.toggle('on')">${f}</button>`).join('')}</div>
-      <label class="check"><input type="checkbox" id="profRemind" checked> Ingatkan aku check-in setiap hari pukul 20.00</label>
+      <label class="label" for="profRef">Kode ajakan <span class="tiny">(opsional)</span></label>
+      <input class="field code-field" id="profRef" placeholder="Dari teman atau Campus Ambassador">
+            <label class="check"><input type="checkbox" id="profRemind" checked> Ingatkan aku check-in setiap hari pukul 20.00</label>
       <label class="check"><input type="checkbox" id="profConsent" onchange="document.getElementById('profBtn').disabled=!this.checked"> Aku berusia 17 tahun ke atas dan setuju dengan Ketentuan Layanan & Kebijakan Privasi.</label>
       <div class="auth-bottom"><button class="btn btn-primary btn-block" id="profBtn" disabled onclick="finishProfile()">Mulai</button></div>`;
   },
@@ -298,6 +300,7 @@ function finishProfile() {
   const name = document.getElementById('profName').value.trim();
   if (name) state.name = name;
   state.prefs.reminders = document.getElementById('profRemind').checked;
+  applyReferral(true);
   state.focus = [...document.querySelectorAll('#focusChips .chip.on')].map(c => c.textContent);
   finishAuth();
 }

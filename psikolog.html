@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portal Psikolog Ruang Pulih — jadwal, ruang sesi, klien, tugas, dan rujukan.">
+  <title>Portal Psikolog · Ruang Pulih</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,500&family=Onest:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <link rel="stylesheet" href="admin.css?v=7">
+  <link rel="stylesheet" href="provider.css?v=1">
+</head>
+<body>
+<div class="shell">
+  <aside class="side" aria-label="Navigasi portal">
+    <a class="side-brand" href="psikolog.html"><span class="wordmark" role="img" aria-label="Ruang Pulih"></span><span class="side-tag">Portal Psikolog</span></a>
+    <nav class="side-nav" id="sideNav"></nav>
+    <div class="side-foot">
+      <div class="org-card"><span class="av" id="meAv" style="width:38px;height:38px;border-radius:12px"></span>
+        <div><b>Dr. Dian Sasmita</b><span>Psikolog klinis · SIPP aktif</span></div></div>
+      <a class="side-link" href="index.html"><i class="ph ph-device-mobile"></i>Lihat aplikasi mahasiswa</a>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div><p class="eyebrow" id="greet"></p><h1 class="page-h" id="pageTitle"></h1></div>
+      <div class="top-actions">
+        <button class="live-toggle" id="liveBtn" onclick="toggleLive()"></button>
+        <button class="icon-btn" onclick="toggleTheme()" aria-label="Ganti tema"><i class="ph ph-moon"></i></button>
+      </div>
+    </header>
+    <div class="page" id="page"></div>
+  </main>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+<div class="toast" id="toast" role="status"></div>
+<div class="drawer-scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true"></aside>
+<div class="room" id="room" role="dialog" aria-modal="true" aria-label="Ruang sesi"></div>
+<script src="provider-common.js?v=1"></script>
+<script src="psikolog.js?v=2"></script>
+</body>
+</html>

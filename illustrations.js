@@ -172,6 +172,7 @@ const PEOPLE = {
   'tp-nadia': { skin: '#E2B48E', hijab: '#E9A73C', top: '#E9A73C' },
   'tp-raka': { skin: '#B97E57', hair: '#2B211C', style: 'wavy', top: CLAY },
   'tp-sekar': { skin: '#D9A57E', hair: '#3A2A20', style: 'bun', top: '#7A8AA6' },
+  sac: { skin: '#D9A57E', hijab: '#2F3B2F', top: '#2F3B2F', glasses: true },
 };
 function portrait(id) {
   const p = typeof id === 'string' ? PEOPLE[id] : id;
@@ -249,6 +250,13 @@ const TOOL_ART = {
     <path class="leaf l3 a-sway d3" ${origin(80, 42)} d="M80 42c-6-4-8-11-5-17 7 3 8 10 5 17z" fill="${SAGE}"/>
     <rect x="54" y="76" width="52" height="10" rx="4" fill="#B5643F"/><path d="M58 86h44l-6 26H64z" fill="#C9774F"/>
     <path d="M70 98q10 5 20 0" stroke="#fff" stroke-opacity=".35" stroke-width="2.4" fill="none" stroke-linecap="round"/>`, 'illo tool-svg'),
+
+  journal: () => svg('0 0 160 120', `
+    <g class="a-twinkle">${sparkle(126, 26, .8)}</g><g class="a-twinkle d2">${sparkle(30, 34, .6)}</g>
+    <g class="a-bob"><rect x="44" y="20" width="72" height="86" rx="9" fill="${PAPER}"/><rect x="44" y="20" width="10" height="86" rx="4" fill="${FOREST}"/>
+      ${[42, 56, 70].map((y, i) => `<path class="a-draw d${i + 1}" d="M64 ${y}h${[38, 30, 34][i]}" stroke="${INK}" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round" style="stroke-dasharray:40"/>`).join('')}</g>
+    <g transform="rotate(32 112 84)"><rect x="108" y="58" width="8" height="34" rx="2" fill="${AMBER}"/><path d="M108 92l4 8 4-8z" fill="#F3D9B1"/></g>
+    <path d="M124 92c4-3 8-3 12 0" stroke="${PAPER}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>`, 'illo tool-svg'),
 
   check: () => svg('0 0 160 120', `
     <path class="a-line" d="M4 108h34l6-10 8 18 6-10h98" stroke="${CLAY}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
